@@ -13,7 +13,10 @@ pilha_contexto *pilha;
 
 %}
 
-%token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA PULALINHA MAIOR_IGUAL
+%token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA PULALINHA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
+%left OU E
+%left NAO
+%left '<' '>' MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP
 %left '+' '-'
 %left '*' '/' '%'
 %%
@@ -21,18 +24,19 @@ pilha_contexto *pilha;
 program:
 	PROGRAMA 
 	PULALINHA '{'
-	PULALINHA funcoes			{}
+	PULALINHA decls
+	funcoes						
 	'}'
-	PULALINHA					
+	PULALINHA					{}			
 	;
 
 decls:
-	decls decl					{}
+	decls decl PULALINHA		{}
 	|
 	;
 	
 decl:
-	TIPO ID PULALINHA			{}
+	TIPO ID 					{}
 	;
 
 funcoes:
@@ -47,13 +51,18 @@ funcao:
 
 bloco:
 	'{'	
-	PULALINHA stmts
-	PULALINHA '}'
+	PULALINHA stmts				
+	'}'
 	PULALINHA					{}
 	;
 
 listaparams:
-	TIPO ID 					{}
+	TIPO ID paramadicional		{}
+	|
+	;
+
+paramadicional:
+	paramadicional ',' TIPO ID 	{}
 	|
 	;
 
@@ -63,9 +72,68 @@ stmts:
 	;
 
 stmt:
-	NUM_INT 					{}
+	attr PULALINHA				{}
+	| decl PULALINHA			{}
+	| expr PULALINHA			{}
+	| exprlogica PULALINHA		{}
+	| escreva PULALINHA			{}
+	| leia PULALINHA			{}
 	;
 
+attr:
+	ID '=' expr							{}
+	;
+
+chamarfuncao:
+	ID '(' listaconteudo ')' 			{}
+	;
+
+escreva:
+	ESCREVA '(' listaconteudo ')' 		{}
+	;
+
+listaconteudo:
+	conteudo conteudoadicional			{}
+	;
+
+conteudoadicional:
+	conteudoadicional ',' conteudo 		{}
+	|
+	;
+
+conteudo:
+	expr 						{}
+	| exprlogica				{}
+	;
+
+leia:
+	LEIA '(' ID ')'				{}
+
+expr:
+	NUM_INT						{}
+	| ID						{}
+	| NUM_REAL					{}
+	| chamarfuncao				{}
+	| expr '*' expr				{}
+	| expr '/' expr				{}
+	| expr '%' expr				{}
+	| expr '+' expr				{}
+	| expr '-' expr				{}
+	| '(' expr ')'				{}
+	;
+
+exprlogica:
+	BOOLEANO					{}
+	| exprlogica OU exprlogica 	{}
+	| exprlogica E exprlogica 	{}
+	| NAO exprlogica 			{ printf("OK\n"); }
+	| expr '>' expr				{}
+	| expr '<' expr				{}
+	| expr MAIOR_IGUAL expr		{}
+	| expr MENOR_IGUAL expr		{}
+	| expr IGUAL_COMP expr		{}
+	| expr DIFERENTE expr		{}
+	;
 %%
 
 void yyerror(char *s) {

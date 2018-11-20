@@ -60,7 +60,25 @@ leia		{ return LEIA; }
 
 cadeia		{ return CADEIA; }
 
-\n 			{ return PULALINHA; }
+verdadeiro	{ 
+				yylval = VERDADEIRO;
+				return BOOLEANO;
+			}
+
+falso		{ 
+				yylval = FALSO;
+				return BOOLEANO;
+			}
+
+\n* 		{ return PULALINHA; }
+
+>=			{ return MAIOR_IGUAL; }
+
+\<=			{ return MENOR_IGUAL; }
+
+!=			{ return DIFERENTE; }
+
+==			{ return IGUAL_COMP; }
 
 {identificador}	{
 				yylval = (long) strdup(yytext);
@@ -68,7 +86,7 @@ cadeia		{ return CADEIA; }
 			}
 
 
-[-+*/%<>!=(){}]	{ return *yytext; }
+[-+*/%<>!=(){},]	{ return *yytext; }
 
 
 

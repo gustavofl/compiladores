@@ -1,7 +1,23 @@
 programa
 {
+	real a
+	inteiro b
 	funcao vazio inicio()
 	{
-		3
+		b = 4 + ( 9 + u )
+		inteiro c
+		c%7
+		NAO a<=c
+		n>=m
+		v==s
+		f!=2
+	}
+
+	funcao inteiro t(inteiro a , real c, real w)
+	{
+		a=f(a,b,4)
+		g(a,b,4)
+		escreva(a,b,4)
+		leia(y)
 	}
 }
