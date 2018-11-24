@@ -1,22 +1,5 @@
-programa
-{
-	real a
-	inteiro b
-	funcao vazio inicio()
-	{
-		b = 4 + ( 9 + u )
-		inteiro c
-		c%7
-		nao a<=c
-		n>=m ou v==s
-		nao 6==1 e f!=o
-	}
-
-	funcao inteiro t(inteiro a , real c, real w)
-	{
-		a=f(a,b,4)
-		g(a,b,4)
-		escreva(a,b,4)
-		leia(y)
-	}
+programa {
+	inteiro a
+	real b = 0
+	inteiro c=3,b=1,l=66,k=12,p=41,a=12,s=42,d,x,c=1
 }

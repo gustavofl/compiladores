@@ -70,8 +70,6 @@ falso		{
 				return BOOLEANO;
 			}
 
-\n* 		{ return PULALINHA; }
-
 >=			{ return MAIOR_IGUAL; }
 
 \<=			{ return MENOR_IGUAL; }
@@ -91,7 +89,7 @@ falso		{
 
 
 
-[ \t] 	; /* skip whitespace */
+[ \t\n] 	; /* skip whitespace */
 . 	yyerror("invalid character");
 %%
 int yywrap(void) {

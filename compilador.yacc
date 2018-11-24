@@ -13,7 +13,7 @@ pilha_contexto *pilha;
 
 %}
 
-%token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA PULALINHA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
+%token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 %left OU
 %left E
 %left DIFERENTE IGUAL_COMP
@@ -24,117 +24,39 @@ pilha_contexto *pilha;
 %%
 
 program:
-	PROGRAMA 
-	PULALINHA '{'
-	PULALINHA decls
-	funcoes						
-	'}'
-	PULALINHA					{}			
+	PROGRAMA '{' corpo_programa '}'				{}
 	;
 
-decls:
-	decls decl PULALINHA		{}
+corpo_programa:
+	corpo_programa componente_programa			{}
 	|
 	;
-	
+
+componente_programa:
+	decl										{}
+	| funcao 									{}
+	;
+
 decl:
-	TIPO ID 					{}
+	TIPO lista_var								{}
 	;
 
-funcoes:
-	funcoes funcao 				{}
-	|
+lista_var:
+	lista_var ',' variavel 						{}
+	| variavel 									{}
+	;
+
+variavel:
+	atribuicao									{}
+	| ID 										{}
+	;
+
+atribuicao:
+	ID '=' NUM_INT 								{}
 	;
 
 funcao:
-	FUNCAO TIPO ID 				{}
-	'(' listaparams ')' 
-	PULALINHA bloco				{}
-
-bloco:
-	'{'	
-	PULALINHA stmts				
-	'}'
-	PULALINHA					{}
-	;
-
-listaparams:
-	TIPO ID paramadicional		{}
-	|
-	;
-
-paramadicional:
-	paramadicional ',' TIPO ID 	{}
-	|
-	;
-
-stmts: 
-	stmts stmt
-	| 	
-	;
-
-stmt:
-	attr PULALINHA				{}
-	| decl PULALINHA			{}
-	| expr PULALINHA			{}
-	| exprlogica PULALINHA		{}
-	| escreva PULALINHA			{}
-	| leia PULALINHA			{}
-	;
-
-attr:
-	ID '=' expr							{}
-	;
-
-chamarfuncao:
-	ID '(' listaconteudo ')' 			{}
-	;
-
-escreva:
-	ESCREVA '(' listaconteudo ')' 		{}
-	;
-
-listaconteudo:
-	conteudo conteudoadicional			{}
-	;
-
-conteudoadicional:
-	conteudoadicional ',' conteudo 		{}
-	|
-	;
-
-conteudo:
-	expr 						{}
-	| exprlogica				{}
-	;
-
-leia:
-	LEIA '(' ID ')'				{}
-
-expr:
-	NUM_INT						{}
-	| ID						{}
-	| NUM_REAL					{}
-	| chamarfuncao				{}
-	| expr '*' expr				{}
-	| expr '/' expr				{}
-	| expr '%' expr				{}
-	| expr '+' expr				{}
-	| expr '-' expr				{}
-	| '(' expr ')'				{}
-	;
-
-exprlogica:
-	BOOLEANO					{}
-	| exprlogica OU exprlogica 	{}
-	| exprlogica E exprlogica 	{}
-	| NAO exprlogica 			{}
-	| expr '>' expr				{}
-	| expr '<' expr				{}
-	| expr MAIOR_IGUAL expr		{}
-	| expr MENOR_IGUAL expr		{}
-	| expr IGUAL_COMP expr		{}
-	| expr DIFERENTE expr		{}
+	')'											{}
 	;
 %%
 
