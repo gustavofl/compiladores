@@ -2,4 +2,12 @@ programa {
 	inteiro a
 	real b = 0
 	inteiro c=3,b=1,l=66,k=12,p=41,a=12,s=42,d,x,c=1
+	funcao inicio () {
+		inteiro c = 0
+		c=12
+	}
+	funcao inteiro teste(inteiro a, inteiro b, real c) {
+		real k=67
+	}
+	inteiro z=1
 }

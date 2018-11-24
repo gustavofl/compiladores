@@ -56,7 +56,38 @@ atribuicao:
 	;
 
 funcao:
-	')'											{}
+	FUNCAO tipo_retorno ID 
+	'(' lista_parametros_vazio ')' 
+	bloco										{}
+	;
+
+lista_parametros_vazio:
+	lista_parametros 							{}
+	|
+	;
+
+lista_parametros:
+	lista_parametros ',' TIPO ID 				{}
+	| TIPO ID 									{}
+	;
+
+tipo_retorno:
+	TIPO 										{}
+	|											{}
+	;
+
+bloco:
+	'{' stmts '}'								{}
+	;
+
+stmts:
+	stmts stmt 									{}
+	|
+	;
+
+stmt:
+	decl
+	| atribuicao
 	;
 %%
 
