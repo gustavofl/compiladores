@@ -14,9 +14,11 @@ pilha_contexto *pilha;
 %}
 
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA PULALINHA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
-%left OU E
-%left NAO
-%left '<' '>' MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP
+%left OU
+%left E
+%left DIFERENTE IGUAL_COMP
+%left '<' '>' MAIOR_IGUAL MENOR_IGUAL
+%left NAO                                    // O portugol studio avalia o nao antes dos operadores logicos
 %left '+' '-'
 %left '*' '/' '%'
 %%
@@ -126,7 +128,7 @@ exprlogica:
 	BOOLEANO					{}
 	| exprlogica OU exprlogica 	{}
 	| exprlogica E exprlogica 	{}
-	| NAO exprlogica 			{ printf("OK\n"); }
+	| NAO exprlogica 			{}
 	| expr '>' expr				{}
 	| expr '<' expr				{}
 	| expr MAIOR_IGUAL expr		{}

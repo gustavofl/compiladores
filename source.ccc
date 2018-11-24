@@ -7,10 +7,9 @@ programa
 		b = 4 + ( 9 + u )
 		inteiro c
 		c%7
-		NAO a<=c
-		n>=m
-		v==s
-		f!=2
+		nao a<=c
+		n>=m ou v==s
+		nao 6==1 e f!=o
 	}
 
 	funcao inteiro t(inteiro a , real c, real w)
