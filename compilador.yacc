@@ -52,7 +52,7 @@ variavel:
 	;
 
 atribuicao:
-	ID '=' NUM_INT 								{}
+	ID '=' expr 								{}
 	;
 
 funcao:
@@ -88,6 +88,33 @@ stmts:
 stmt:
 	decl
 	| atribuicao
+	| expr
+	| exprlogica
+	;
+
+expr:
+	NUM_INT										{}
+	| ID										{}
+	| NUM_REAL									{}
+	| expr '*' expr								{}
+	| expr '/' expr								{}
+	| expr '%' expr								{}
+	| expr '+' expr								{}
+	| expr '-' expr								{}
+	| '(' expr ')'								{}
+	;
+
+exprlogica:
+	BOOLEANO									{}
+	| exprlogica OU exprlogica 					{}
+	| exprlogica E exprlogica 					{}
+	| NAO exprlogica 							{}
+	| expr '>' expr								{}
+	| expr '<' expr								{}
+	| expr MAIOR_IGUAL expr						{}
+	| expr MENOR_IGUAL expr						{}
+	| expr IGUAL_COMP expr						{}
+	| expr DIFERENTE expr						{}
 	;
 %%
 

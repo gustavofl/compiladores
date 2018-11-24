@@ -1,10 +1,27 @@
 programa {
 	inteiro a
 	real b = 0
-	inteiro c=3,b=1,l=66,k=12,p=41,a=12,s=42,d,x,c=1
+	inteiro c=3.0,b=1,l=66,k=12,p=41,a=12,s=42.5,d,x,c=1
 	funcao inicio () {
 		inteiro c = 0
 		c=12
+		a>3
+		b<q
+		2>=5.6
+		88<=k
+		c == 9.3
+		d != jj
+		c=9+88.66
+		d=ii+j
+		vv=3-o
+		dd=u*99
+		xv=j/l
+		ff=w+(2*3-8)/66.66
+		f=3%9.2
+		verdadeiro ou falso
+		2>k e 3<p
+		nao k<o
+		nao u==o ou 3!=9 e h<=(3+1) ou nao k+3/55<=22
 	}
 	funcao inteiro teste(inteiro a, inteiro b, real c) {
 		real k=67
