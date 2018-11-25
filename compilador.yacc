@@ -14,6 +14,7 @@ pilha_contexto *pilha;
 %}
 
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
+
 %left OU
 %left E
 %left DIFERENTE IGUAL_COMP
@@ -21,6 +22,9 @@ pilha_contexto *pilha;
 %left NAO                                    // O portugol studio avalia o nao antes dos operadores logicos
 %left '+' '-'
 %left '*' '/' '%'
+
+%nonassoc REDUCE
+%nonassoc '('
 %%
 
 program:
@@ -57,7 +61,9 @@ atribuicao:
 
 funcao:
 	FUNCAO tipo_retorno ID 
-	'(' lista_parametros_vazio ')' 
+	'(' 
+	lista_parametros_vazio 
+	')' 
 	bloco										{}
 	;
 
@@ -86,16 +92,19 @@ stmts:
 	;
 
 stmt:
-	decl
-	| atribuicao
-	| expr
-	| exprlogica
+	decl										{}
+	| atribuicao								{}
+	| expr 										{}
+	| exprlogica								{}
+	| leia 										{}
+	| escreva 									{}
 	;
 
 expr:
 	NUM_INT										{}
-	| ID										{}
+	| ID 	%prec REDUCE						{}		// testar se está realmente funcionando...
 	| NUM_REAL									{}
+	| chamar_funcao								{}
 	| expr '*' expr								{}
 	| expr '/' expr								{}
 	| expr '%' expr								{}
@@ -115,6 +124,32 @@ exprlogica:
 	| expr MENOR_IGUAL expr						{}
 	| expr IGUAL_COMP expr						{}
 	| expr DIFERENTE expr						{}
+	;
+
+leia:
+	LEIA 
+	'(' 
+	ID 
+	')'											{}
+	;
+
+escreva:
+	ESCREVA 
+	'(' 
+	lista_argumentos 
+	')'											{}
+	;
+
+chamar_funcao:
+	ID
+	'(' 
+	lista_argumentos 
+	')'											{}
+	;
+
+lista_argumentos:
+	lista_argumentos ',' expr 					{}
+	| expr 										{}
 	;
 %%
 

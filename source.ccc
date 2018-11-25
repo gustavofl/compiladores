@@ -22,9 +22,14 @@ programa {
 		2>k e 3<p
 		nao k<o
 		nao u==o ou 3!=9 e h<=(3+1) ou nao k+3/55<=22
+		leia(k)
+		escreva(a,4)
 	}
 	funcao inteiro teste(inteiro a, inteiro b, real c) {
 		real k=67
+		leia(j)
+		escreva(k,q,4,7,j,g)
+		join(i)
 	}
 	inteiro z=1
 }
