@@ -99,6 +99,7 @@ stmt:
 	| leia 										{}
 	| escreva 									{}
 	| se_senao 									{}
+	| enquanto 									{}
 	;
 
 expr:
@@ -156,6 +157,10 @@ lista_argumentos:
 se_senao:
 	SE '(' exprlogica ')' bloco					{}
 	| SE '(' exprlogica ')' bloco SENAO bloco	{}
+	;
+
+enquanto:
+	ENQUANTO '(' exprlogica ')' bloco			{}
 	;
 %%
 

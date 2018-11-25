@@ -31,7 +31,21 @@ programa {
 		leia(j)
 		escreva(k,q,4,7,j,g)
 		join(i)
-		se (verdadeiro) {escreva(2)} senao {escreva(c)}
+		se (verdadeiro) {escreva(2)} senao {
+			enquanto(3>2){
+				a>3
+				b<q
+				2>=5.6
+				88<=k
+				c == 9.3
+				d != jj
+				c=9+88.66
+				d=ii+j
+				vv=3-o
+				dd=u*99
+				xv=j/l
+			}
+		}
 	}
 	inteiro z=1
 }
