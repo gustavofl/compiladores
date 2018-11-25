@@ -98,6 +98,7 @@ stmt:
 	| exprlogica								{}
 	| leia 										{}
 	| escreva 									{}
+	| se_senao 									{}
 	;
 
 expr:
@@ -150,6 +151,11 @@ chamar_funcao:
 lista_argumentos:
 	lista_argumentos ',' expr 					{}
 	| expr 										{}
+	;
+
+se_senao:
+	SE '(' exprlogica ')' bloco					{}
+	| SE '(' exprlogica ')' bloco SENAO bloco	{}
 	;
 %%
 
