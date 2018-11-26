@@ -25,6 +25,9 @@ programa {
 		leia(k)
 		escreva(a,4)
 		se (1<2) { escreva(1) }
+		inteiro a[2] = {1,2}
+		inteiro a[1]
+		real a[] = {1.2,1.4,6.7}
 	}
 	funcao inteiro teste(inteiro a, inteiro b, real c) {
 		real k=67

@@ -84,7 +84,7 @@ falso		{
 			}
 
 
-[-+*/%<>=(){},]	{ return *yytext; }
+[-+*/%<>=(){},\[\]]	{ return *yytext; }
 
 
 

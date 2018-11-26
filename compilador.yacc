@@ -25,6 +25,7 @@ pilha_contexto *pilha;
 
 %nonassoc REDUCE
 %nonassoc '('
+%nonassoc SENAO
 %%
 
 program:
@@ -64,7 +65,7 @@ funcao:
 	'(' 
 	lista_parametros_vazio 
 	')' 
-	bloco										{}
+	bloco_composto								{}
 	;
 
 lista_parametros_vazio:
@@ -82,8 +83,13 @@ tipo_retorno:
 	|											{}
 	;
 
-bloco:
+bloco_composto:
 	'{' stmts '}'								{}
+	;
+
+bloco:
+	bloco_composto								{}
+	| stmt 										{}
 	;
 
 stmts:
@@ -107,6 +113,7 @@ expr:
 	| ID 	%prec REDUCE						{}		// testar se está realmente funcionando...
 	| NUM_REAL									{}
 	| chamar_funcao								{}
+	| decl_array								{}
 	| expr '*' expr								{}
 	| expr '/' expr								{}
 	| expr '%' expr								{}
@@ -126,6 +133,12 @@ exprlogica:
 	| expr MENOR_IGUAL expr						{}
 	| expr IGUAL_COMP expr						{}
 	| expr DIFERENTE expr						{}
+	;
+
+decl_array:
+	TIPO ID '[' NUM_INT ']'										{}
+	|  TIPO ID '[' NUM_INT ']' '=' '{' lista_argumentos '}'		{}	
+	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'				{}
 	;
 
 leia:
@@ -155,7 +168,7 @@ lista_argumentos:
 	;
 
 se_senao:
-	SE '(' exprlogica ')' bloco					{}
+	SE '(' exprlogica ')' bloco %prec REDUCE	{}
 	| SE '(' exprlogica ')' bloco SENAO bloco	{}
 	;
 
