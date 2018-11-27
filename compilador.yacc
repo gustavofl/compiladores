@@ -114,6 +114,7 @@ expr:
 	| NUM_REAL									{}
 	| chamar_funcao								{}
 	| decl_array								{}
+	| atr_array									{}
 	| expr '*' expr								{}
 	| expr '/' expr								{}
 	| expr '%' expr								{}
@@ -140,6 +141,10 @@ decl_array:
 	|  TIPO ID '[' NUM_INT ']' '=' '{' lista_argumentos '}'		{}	
 	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'				{}
 	;
+
+atr_array:
+	ID '[' NUM_INT ']' '=' NUM_INT				{}
+	| ID '[' NUM_INT ']' '=' NUM_REAL			{}
 
 leia:
 	LEIA 
