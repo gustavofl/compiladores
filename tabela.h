@@ -3,6 +3,25 @@
 
 #include <string.h>
 
+
+
+typedef struct tabela_numero {
+	no_tabela_numero *primeiro;
+} tabela_numero;
+
+typedef struct no_tabela_numero {
+	numero *dado;
+	struct no_tabela_numero *proximo;
+} no_tabela_numero;
+
+typedef struct numero {
+	int tipo;
+	int valor_inteiro;
+	float valor_real;
+} numero;
+
+
+
 typedef union valor {
 	int dval;
 	float fval;
@@ -28,6 +47,11 @@ typedef struct pilha_contexto  {
 	tabela *dado;
 	struct pilha_contexto *anterior;
 } pilha_contexto;
+
+
+void inserir_numero(tabela_numero *t, numero *n);
+numero * localizar_numero (tabela_numero *tabela, char *lexema);
+numero * criar_numero (char *lexema, int tipo);
 
 void inserir_simbolo(tabela *t, simbolo *s);
 simbolo * localizar_simbolo (tabela *contexto, char *lexema);

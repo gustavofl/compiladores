@@ -4,7 +4,38 @@
 #include "y.tab.h"
 
 
+void inserir_simbolo(tabela *t, simbolo *s) {
+	no_tabela *no = (no_tabela *) malloc(sizeof(no_tabela));
+	no->dado = s;
+	no->proximo = t->primeiro;
+	t->primeiro = no;
+}
 
+
+simbolo * localizar_simbolo (tabela *contexto, char *lexema){
+	tabela *temp = contexto;
+	no_tabela *temp2;
+	while(temp != NULL) {
+		temp2 = temp->primeiro;
+		while(temp2 != NULL) {
+			if(strcmp(temp2->dado->lexema, lexema) == 0) {
+				return temp2->dado;
+			}
+			temp2 = temp2->proximo;
+		}
+		temp = temp->pai;
+	}
+	return NULL;
+}
+
+
+simbolo *  criar_simbolo (char *lexema, int tipo) {
+	simbolo *novo = (simbolo *) malloc(sizeof(simbolo));
+	novo->tipo = tipo;
+	novo->lexema = strdup(lexema);
+	novo->val.dval = 0;
+	return novo;
+}
 
 void inserir_simbolo(tabela *t, simbolo *s) {
 	no_tabela *no = (no_tabela *) malloc(sizeof(no_tabela));
