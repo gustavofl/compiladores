@@ -4,38 +4,26 @@
 #include "y.tab.h"
 
 
-void inserir_simbolo(tabela *t, simbolo *s) {
-	no_tabela *no = (no_tabela *) malloc(sizeof(no_tabela));
-	no->dado = s;
+void inserir_numero(tabela_numero *t, numero *n) {
+	no_tabela_numero *no = (no_tabela_numero *) malloc(sizeof(no_tabela_numero));
+	no->dado = n;
 	no->proximo = t->primeiro;
 	t->primeiro = no;
 }
 
-
-simbolo * localizar_simbolo (tabela *contexto, char *lexema){
-	tabela *temp = contexto;
-	no_tabela *temp2;
-	while(temp != NULL) {
-		temp2 = temp->primeiro;
-		while(temp2 != NULL) {
-			if(strcmp(temp2->dado->lexema, lexema) == 0) {
-				return temp2->dado;
-			}
-			temp2 = temp2->proximo;
+numero * localizar_numero_inteiro (tabela_numero *t, char *lexema, int tipo) {
+	tabela_numero *temp = t;
+	no_tabela_numero *no = temp->primeiro;
+	while(no != NULL) {
+		if(no->dado->valor_inteiro == n) {
+			return no->dado;
 		}
-		temp = temp->pai;
+		no = no->proximo;
 	}
 	return NULL;
 }
 
 
-simbolo *  criar_simbolo (char *lexema, int tipo) {
-	simbolo *novo = (simbolo *) malloc(sizeof(simbolo));
-	novo->tipo = tipo;
-	novo->lexema = strdup(lexema);
-	novo->val.dval = 0;
-	return novo;
-}
 
 void inserir_simbolo(tabela *t, simbolo *s) {
 	no_tabela *no = (no_tabela *) malloc(sizeof(no_tabela));
