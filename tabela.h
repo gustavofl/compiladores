@@ -46,7 +46,6 @@ typedef struct pilha_contexto  {
 	struct pilha_contexto *anterior;
 } pilha_contexto;
 
-
 void inserir_numero(tabela_numero *t, numero *n);
 numero * localizar_numero (tabela_numero *t, char *lexema, int tipo);
 numero * criar_numero (char *lexema, int tipo);
@@ -62,5 +61,6 @@ tabela* topo_pilha(pilha_contexto *pilha);
 tabela * criar_contexto(tabela *pai);
 
 void imprimir_contexto(tabela *t);
+void imprimir_tabela_numeros(tabela_numero *t);
 
 #endif

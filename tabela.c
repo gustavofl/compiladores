@@ -3,7 +3,6 @@
 #include "tabela.h"
 #include "y.tab.h"
 
-
 void inserir_numero(tabela_numero *t, numero *n) {
 	no_tabela_numero *no = (no_tabela_numero *) malloc(sizeof(no_tabela_numero));
 	no->dado = n;
@@ -16,7 +15,7 @@ numero * localizar_numero (tabela_numero *t, char *lexema, int tipo){
 
 	no_tabela_numero *temp = t->primeiro;
 	while(temp != NULL) {
-		if(numeros_iguais(novo_num, temp->dado) == 0) {
+		if(numeros_iguais(novo_num, temp->dado)) {
 			return temp->dado;
 		}
 		temp = temp->proximo;
@@ -36,16 +35,35 @@ numero * criar_numero (char *lexema, int tipo) {
 }
 
 int numeros_iguais(numero *n1, numero *n2) {
+	int resultado;
+
 	if(n1 == NULL || n2 == NULL)
-		return 0;
+		resultado = 0;
 	if(n1->tipo != n2->tipo)
-		return 0;
+		resultado = 0;
 	if(n1->tipo == INT)
-		return n1->valor_inteiro == n2->valor_inteiro;
+		resultado = n1->valor_inteiro == n2->valor_inteiro;
 	else if(n1->tipo == REAL)
-		return n1->valor_real == n2->valor_real;
+		resultado = n1->valor_real == n2->valor_real;
 	else
-		return 0;
+		resultado = 0;
+
+	return resultado;
+}
+
+void imprimir_tabela_numeros(tabela_numero *t) {
+	no_tabela_numero *no = t->primeiro;
+
+	printf("\nTABELA DE NUMEROS:\n");
+	while(no != NULL) {
+		numero *n = no->dado;
+		if(n->tipo == INT)
+			printf("INTEIRO: %d\n", n->valor_inteiro);
+		else if(n->tipo == REAL)
+			printf("REAL: %f\n", n->valor_real);
+		no = no->proximo;
+	}
+	printf("\n");
 }
 
 void inserir_simbolo(tabela *t, simbolo *s) {
