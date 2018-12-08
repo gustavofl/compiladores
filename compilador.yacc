@@ -16,6 +16,9 @@ tabela_numero t_numeros;
 
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
+// Constantes que são usadas para construir a arvore sintatica
+%token EXPR_LOGICA MAIOR NUMERO MENOR
+
 %left OU
 %left E
 %left DIFERENTE IGUAL_COMP
@@ -102,7 +105,7 @@ stmt:
 	decl										{}
 	| atribuicao								{}
 	| expr 										{}
-	| exprlogica								{}
+	| exprlogica								{ imprimir_pos_ordem((no_arvore *) $1); }
 	| leia 										{}
 	| escreva 									{}
 	| se_senao 									{}
@@ -117,7 +120,9 @@ expr:
 														n = criar_numero(lexema, INT);
 														inserir_numero(&t_numeros, n);
 													}
-													$$ = (long) n;
+													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
+													((numero *) no->dado.exprlogica->dir)->tipo = INT;
+													$$ = (long) no;
 												}
 	| ID 	%prec REDUCE						{}		// testar se está realmente funcionando...
 	| NUM_REAL									{
@@ -127,7 +132,9 @@ expr:
 														n = criar_numero(lexema, REAL);
 														inserir_numero(&t_numeros, n);
 													}
-													$$ = (long) n;
+													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
+													((numero *) no->dado.exprlogica->dir)->tipo = REAL;
+													$$ = (long) no;
 												}
 	| chamar_funcao								{}
 	| decl_array								{}
@@ -138,19 +145,25 @@ expr:
 	| expr '+' expr								{}
 	| expr '-' expr								{}
 	| '(' expr ')'								{}
+//	| '-' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
+//	| '+' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
 	;
 
+
 exprlogica:
-	BOOLEANO									{}
-	| exprlogica OU exprlogica 					{}
-	| exprlogica E exprlogica 					{}
-	| NAO exprlogica 							{}
-	| expr '>' expr								{}
-	| expr '<' expr								{}
-	| expr MAIOR_IGUAL expr						{}
-	| expr MENOR_IGUAL expr						{}
-	| expr IGUAL_COMP expr						{}
-	| expr DIFERENTE expr						{}
+	BOOLEANO									{ $$ = (long) criar_no_expressao_logica(BOOLEANO, (void *) $1, NULL); }
+	| exprlogica OU exprlogica 					{ $$ = (long) criar_no_expressao_logica(OU, (void *) $3, (void *) $1); }
+	| exprlogica E exprlogica 					{ $$ = (long) criar_no_expressao_logica(E, (void *) $3, (void *) $1); }
+	| NAO exprlogica 							{ $$ = (long) criar_no_expressao_logica(NAO, (void *) $2, NULL); }
+	| expr '>' expr								{ $$ = (long) criar_no_expressao_logica(MAIOR, (void *) $3, (void *) $1); }
+	| expr '<' expr								{ $$ = (long) criar_no_expressao_logica(MENOR, (void *) $3, (void *) $1); }
+	| expr MAIOR_IGUAL expr						{ $$ = (long) criar_no_expressao_logica(MAIOR_IGUAL, (void *) $3, (void *) $1); }
+	| expr MENOR_IGUAL expr						{ $$ = (long) criar_no_expressao_logica(MENOR_IGUAL, (void *) $3, (void *) $1); }
+	| expr IGUAL_COMP expr						{ $$ = (long) criar_no_expressao_logica(IGUAL_COMP, (void *) $3, (void *) $1); }
+	| expr DIFERENTE expr						{ $$ = (long) criar_no_expressao_logica(DIFERENTE, (void *) $3, (void *) $1); }
+	| exprlogica IGUAL_COMP exprlogica			{ $$ = (long) criar_no_expressao_logica(IGUAL_COMP, (void *) $3, (void *) $1); }
+	| exprlogica DIFERENTE exprlogica			{ $$ = (long) criar_no_expressao_logica(DIFERENTE, (void *) $3, (void *) $1); }
+	| '(' exprlogica ')'						{ $$ = (long) criar_no_expressao_logica(EXPR_LOGICA, (void *) $2, NULL); }
 	;
 
 decl_array:
@@ -206,5 +219,6 @@ void yyerror(char *s) {
 int main(void) {
 	pilha = NULL;
 	yyparse();
+	printf("\n");
 	return 0;
 }
