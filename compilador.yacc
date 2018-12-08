@@ -10,6 +10,7 @@ int yylex(void);
 void yyerror(char *);
 
 pilha_contexto *pilha;
+tabela_numero t_numeros;
 
 %}
 
@@ -109,9 +110,25 @@ stmt:
 	;
 
 expr:
-	NUM_INT										{}
+	NUM_INT										{
+													char *lexema = (char *) $1;
+													numero *n = localizar_numero(&t_numeros, lexema, INT); 
+													if(n == NULL){
+														n = criar_numero(lexema, INT);
+														inserir_numero(&t_numeros, n);
+													}
+													$$ = (long) n;
+												}
 	| ID 	%prec REDUCE						{}		// testar se está realmente funcionando...
-	| NUM_REAL									{}
+	| NUM_REAL									{
+													char *lexema = (char *) $1;
+													numero *n = localizar_numero(&t_numeros, lexema, REAL); 
+													if(n == NULL){
+														n = criar_numero(lexema, REAL);
+														inserir_numero(&t_numeros, n);
+													}
+													$$ = (long) n;
+												}
 	| chamar_funcao								{}
 	| decl_array								{}
 	| atr_array									{}

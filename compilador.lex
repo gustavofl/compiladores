@@ -16,7 +16,7 @@ identificador	{letra}({letra}|{digito})*
 programa	{ return PROGRAMA; }
 
 {digito}+	{ 
-				yylval = atoi(yytext);
+				yylval = (long) strdup(yytext);
 				return NUM_INT;
 			}
 
