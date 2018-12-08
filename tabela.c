@@ -95,7 +95,6 @@ simbolo *  criar_simbolo (char *lexema, int tipo) {
 	simbolo *novo = (simbolo *) malloc(sizeof(simbolo));
 	novo->tipo = tipo;
 	novo->lexema = strdup(lexema);
-	novo->val.dval = 0;
 	return novo;
 }
 
@@ -129,6 +128,7 @@ tabela* topo_pilha(pilha_contexto *pilha) {
 void imprimir_contexto(tabela *t) {
 	no_tabela * temp = t->primeiro;
 	printf("----------------------------------\n");
+/*
 	while(temp != NULL) {
 		if(temp->dado->tipo == INT) 
 			printf("\t INT: %s (%d)\n", temp->dado->lexema, temp->dado->val.dval);
@@ -136,6 +136,7 @@ void imprimir_contexto(tabela *t) {
 			printf("\t FLOAT: %s (%d)\n", temp->dado->lexema, temp->dado->val.dval);	
 		temp = temp->proximo;
 	}
+*/
 	printf("==================================\n");
 }
 

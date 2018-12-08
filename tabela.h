@@ -19,16 +19,9 @@ typedef struct tabela_numero {
 } tabela_numero;
 
 
-
-typedef union valor {
-	int dval;
-	float fval;
-} valor;
-
 typedef struct simbolo {
 	int tipo;
 	char *lexema;
-	valor val;
 } simbolo;
 
 typedef struct no_tabela {

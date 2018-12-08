@@ -17,7 +17,7 @@ tabela_numero t_numeros;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD
 
 %left OU
 %left E
@@ -104,7 +104,7 @@ stmts:
 stmt:
 	decl										{}
 	| atribuicao								{}
-	| expr 										{}
+	| expr 										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| exprlogica								{ imprimir_pos_ordem((no_arvore *) $1); }
 	| leia 										{}
 	| escreva 									{}
@@ -139,12 +139,12 @@ expr:
 	| chamar_funcao								{}
 	| decl_array								{}
 	| atr_array									{}
-	| expr '*' expr								{}
-	| expr '/' expr								{}
-	| expr '%' expr								{}
-	| expr '+' expr								{}
-	| expr '-' expr								{}
-	| '(' expr ')'								{}
+	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
+	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
+	| expr '%' expr								{ $$ = (long) criar_no_expressao(MOD, (void *) $3, (void *) $1); }
+	| expr '+' expr								{ $$ = (long) criar_no_expressao(SOMA, (void *) $3, (void *) $1); }
+	| expr '-' expr								{ $$ = (long) criar_no_expressao(SUB, (void *) $3, (void *) $1); }
+	| '(' expr ')'								{ $$ = $2; }
 //	| '-' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
 //	| '+' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
 	;
@@ -163,7 +163,7 @@ exprlogica:
 	| expr DIFERENTE expr						{ $$ = (long) criar_no_expressao_logica(DIFERENTE, (void *) $3, (void *) $1); }
 	| exprlogica IGUAL_COMP exprlogica			{ $$ = (long) criar_no_expressao_logica(IGUAL_COMP, (void *) $3, (void *) $1); }
 	| exprlogica DIFERENTE exprlogica			{ $$ = (long) criar_no_expressao_logica(DIFERENTE, (void *) $3, (void *) $1); }
-	| '(' exprlogica ')'						{ $$ = (long) criar_no_expressao_logica(EXPR_LOGICA, (void *) $2, NULL); }
+	| '(' exprlogica ')'						{ $$ = $2; }
 	;
 
 decl_array:

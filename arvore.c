@@ -113,9 +113,6 @@ void imprimir_pos_ordem(no_arvore *no) {
 					imprimir_pos_ordem((no_arvore *) exprlogica->dir);
 					printf("!=");
 					break;
-				case EXPR_LOGICA:
-					imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-					break;
 			}
 			break;
 		case EXPR:
@@ -130,6 +127,31 @@ void imprimir_pos_ordem(no_arvore *no) {
 							printf("%.2f", ((numero *) expr->dir)->valor_real);
 							break;
 					}
+					break;
+				case SOMA:
+					imprimir_pos_ordem((no_arvore *) expr->esq);
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					printf("+");
+					break;
+				case SUB:
+					imprimir_pos_ordem((no_arvore *) expr->esq);
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					printf("-");
+					break;
+				case MULT:
+					imprimir_pos_ordem((no_arvore *) expr->esq);
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					printf("*");
+					break;
+				case DIV:
+					imprimir_pos_ordem((no_arvore *) expr->esq);
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					printf("/");
+					break;
+				case MOD:
+					imprimir_pos_ordem((no_arvore *) expr->esq);
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					printf("%c",'%');
 					break;
 			}
 			break;
