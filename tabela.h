@@ -3,8 +3,6 @@
 
 #include <string.h>
 
-
-
 typedef struct numero {
 	int tipo;
 	int valor_inteiro;
@@ -50,9 +48,9 @@ typedef struct pilha_contexto  {
 
 
 void inserir_numero(tabela_numero *t, numero *n);
-numero * localizar_numero_inteiro (tabela_numero *t, int n, int tipo);
-numero * localizar_numero_real (tabela_numero *t, float n);
+numero * localizar_numero (tabela_numero *t, char *lexema, int tipo);
 numero * criar_numero (char *lexema, int tipo);
+int numeros_iguais(numero *n1, numero *n2);
 
 void inserir_simbolo(tabela *t, simbolo *s);
 simbolo * localizar_simbolo (tabela *contexto, char *lexema);

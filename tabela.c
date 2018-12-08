@@ -11,19 +11,42 @@ void inserir_numero(tabela_numero *t, numero *n) {
 	t->primeiro = no;
 }
 
-numero * localizar_numero_inteiro (tabela_numero *t, char *lexema, int tipo) {
-	tabela_numero *temp = t;
-	no_tabela_numero *no = temp->primeiro;
-	while(no != NULL) {
-		if(no->dado->valor_inteiro == n) {
-			return no->dado;
+numero * localizar_numero (tabela_numero *t, char *lexema, int tipo){
+	numero *novo_num = criar_numero(lexema, tipo);
+
+	no_tabela_numero *temp = t->primeiro;
+	while(temp != NULL) {
+		if(numeros_iguais(novo_num, temp->dado) == 0) {
+			return temp->dado;
 		}
-		no = no->proximo;
+		temp = temp->proximo;
 	}
+
 	return NULL;
 }
 
+numero * criar_numero (char *lexema, int tipo) {
+	numero *novo = (numero *) malloc(sizeof(numero));
+	novo->tipo = tipo;
+	if(tipo == INT)
+		novo->valor_inteiro = atoi(lexema);
+	else if(tipo == REAL)
+		novo->valor_real = atof(lexema);
+	return novo;
+}
 
+int numeros_iguais(numero *n1, numero *n2) {
+	if(n1 == NULL || n2 == NULL)
+		return 0;
+	if(n1->tipo != n2->tipo)
+		return 0;
+	if(n1->tipo == INT)
+		return n1->valor_inteiro == n2->valor_inteiro;
+	else if(n1->tipo == REAL)
+		return n1->valor_real == n2->valor_real;
+	else
+		return 0;
+}
 
 void inserir_simbolo(tabela *t, simbolo *s) {
 	no_tabela *no = (no_tabela *) malloc(sizeof(no_tabela));
