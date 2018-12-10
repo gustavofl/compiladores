@@ -64,16 +64,12 @@ decl:
 															((simbolo *) ((no_arvore *) b->dado)->dado.attr->resultado)->tipo = $1;
 													}
 
-													no_arvore *no = criar_no_lista_attr((lista_attr *) $2);
-													$$ = (long) no;
+													$$ = $2;
 												}
 	;
 
 lista_var:
-	lista_var ',' variavel 						{
-													lista_attr *lista = lista_atribuicao_add((lista_attr *) $1, (lista_attr *) $3);
-													$$ = (long) lista;
-												}
+	lista_var ',' variavel 						{ $$ = (long) criar_no_t_lista_attr((void *) $3, (void *) $1); }
 	| variavel 									{ $$ = $1; }
 	;
 
@@ -87,10 +83,10 @@ variavel:
 														exit(0);
 													}
 													inserir_simbolo(topo_pilha(pilha), novo);
+
 													add_buffer(&fila, NO_ARVORE, (void *) $1);
 													
-													lista_attr *lista = criar_lista_atribuicao(no);
-													$$ = (long) lista;
+													$$ = $1;
 												}
 	| ID 										{
 													simbolo *s = localizar_simbolo_contexto(topo_pilha(pilha), (char *) $1);
@@ -100,9 +96,10 @@ variavel:
 													}
 													s = criar_simbolo((char *) $1, 0);
 													inserir_simbolo(topo_pilha(pilha), s);
+
 													add_buffer(&fila, ID, s);
 
-													$$ = NULO;
+													$$ = (long) NULL;
 												}
 	;
 

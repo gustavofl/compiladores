@@ -1,6 +1,6 @@
 programa {
 	funcao inicio () {
-		inteiro a,x
+		inteiro a,x,f=2,t,h,k=11,p=90
 		a(1,2,x+1)
 		x()
 	}
