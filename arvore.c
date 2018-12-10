@@ -64,12 +64,12 @@ t_lista_attr * criar_t_lista_attr(void *dir, void *esq){
 no_arvore * criar_no_lista_arg(void *dir, void *esq) {
 	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
 	novo->tipo = LISTA_ARG;
-	novo->dado.arglista = criar_lista_arg(dir, esq);
+	novo->dado.lista_arg = criar_lista_arg(dir, esq);
 	return novo;
 }
 
-lista_arg * criar_lista_arg(void *dir, void *esq) {
-	lista_arg *novo = (lista_arg *) malloc(sizeof(lista_arg));
+t_lista_arg * criar_lista_arg(void *dir, void *esq) {
+	t_lista_arg *novo = (t_lista_arg *) malloc(sizeof(t_lista_arg));
 	novo->dir = dir;
 	novo->esq = esq;
 	return novo;
@@ -121,7 +121,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 
 	t_expr_logica *exprlogica;
 	t_expr * expr;
-	lista_arg *arglista;
+	t_lista_arg *arglista;
 	t_funcao *funcao;
 	t_lista_attr *t_attrlista;
 	t_escreva *escreva;
@@ -242,7 +242,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 			imprimir_pos_ordem((no_arvore *) t_attrlista->dir);
 			break;
 		case LISTA_ARG:
-			arglista = no->dado.arglista;
+			arglista = no->dado.lista_arg;
 			imprimir_pos_ordem((no_arvore *) arglista->esq);
 			imprimir_pos_ordem((no_arvore *) arglista->dir);
 			break;

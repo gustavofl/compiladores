@@ -28,10 +28,10 @@ typedef struct t_lista_attr {
 	void *esq;
 } t_lista_attr;
 
-typedef struct no_lista_arg {
+typedef struct t_lista_arg {
 	void *dir;
 	void *esq;
-} lista_arg;
+} t_lista_arg;
 
 typedef struct t_funcao {
 	simbolo *nome;
@@ -51,7 +51,7 @@ typedef union valor_sintatico {
 	t_expr *expr;
 	t_expr_logica *exprlogica;
 	t_attr *attr;
-	lista_arg *arglista;
+	t_lista_arg *lista_arg;
 	t_funcao *funcao;
 	t_lista_attr *t_attrlista;
 	t_escreva *escreva;
@@ -77,7 +77,7 @@ no_arvore * criar_no_t_lista_attr(void *dir, void *esq);
 t_lista_attr * criar_t_lista_attr(void *dir, void *esq);
 
 no_arvore * criar_no_lista_arg(void *dir, void *esq);
-lista_arg * criar_lista_arg(void *dir, void *esq);
+t_lista_arg * criar_lista_arg(void *dir, void *esq);
 
 no_arvore * criar_no_funcao(simbolo *nome, void *args);
 t_funcao * criar_funcao(simbolo *nome, void *args);
