@@ -23,7 +23,6 @@ fila_buffer fila;
 
 // Constantes que são usadas para construir a arvore sintatica
 %token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO
-
 %left OU
 %left E
 %left DIFERENTE IGUAL_COMP
@@ -174,6 +173,7 @@ stmt:
 												}
 	| decl_array								{}
 	| atr_array									{}
+	| array 									{}
 	| expr 										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| exprlogica								{ imprimir_pos_ordem((no_arvore *) $1); }
 	| leia 										{ imprimir_pos_ordem((no_arvore *) $1); }
@@ -182,7 +182,7 @@ stmt:
 	| enquanto 									{}
 	;
 
-expr:
+numero_inteiro:
 	NUM_INT										{
 													char *lexema = (char *) $1;
 													numero *n = localizar_numero(&t_numeros, lexema, INT); 
@@ -190,6 +190,13 @@ expr:
 														n = criar_numero(lexema, INT);
 														inserir_numero(&t_numeros, n);
 													}
+													$$ = (long) n;
+												}
+	;
+
+expr:
+	numero_inteiro								{
+													numero *n = (numero *) $1;
 													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
 													no->dado.expr->tipo = INT;
 													$$ = (long) no;
@@ -244,13 +251,18 @@ exprlogica:
 	;
 
 decl_array:
-	TIPO ID '[' NUM_INT ']'										{}
-	|  TIPO ID '[' NUM_INT ']' '=' '{' lista_argumentos '}'		{}	
-	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'				{}
+	TIPO ID '[' numero_inteiro ']'											{}
+	|  TIPO ID '[' numero_inteiro ']' '=' '{' lista_argumentos '}'			{}	
+	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'							{}
 	;
+
 atr_array:
-	ID '[' NUM_INT ']' '=' NUM_INT								{}
-	| ID '[' NUM_INT ']' '=' NUM_REAL							{}
+	ID '[' expr ']' '=' expr					{}
+	;
+
+array:
+	ID '[' expr ']'								{}
+	;
 
 leia:
 	LEIA 
