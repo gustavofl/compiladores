@@ -256,15 +256,20 @@ leia:
 escreva:
 	ESCREVA 
 	'(' 
-	lista_argumentos 
+	lista_argumentos_vazio 
 	')'											{}
 	;
 
 chamar_funcao:
 	ID
 	'(' 
-	lista_argumentos 
+	lista_argumentos_vazio 
 	')'											{}
+	;
+
+lista_argumentos_vazio:
+	lista_argumentos 							{}
+	|
 	;
 
 lista_argumentos:
