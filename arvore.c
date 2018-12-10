@@ -89,6 +89,32 @@ t_funcao * criar_funcao(simbolo *nome, void *args){
 	return novo;
 }
 
+no_arvore * criar_no_escreva(void *args){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = ESCREVA;
+	novo->dado.escreva = criar_escreva(args);
+	return novo;
+}
+
+t_escreva * criar_escreva(void *args){
+	t_escreva * novo = (t_escreva *) malloc(sizeof(t_escreva));
+	novo->args = args;
+	return novo;
+}
+
+no_arvore * criar_no_leia(simbolo *variavel){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = LEIA;
+	novo->dado.leia = criar_leia(variavel);
+	return novo;
+}
+
+t_leia * criar_leia(simbolo *variavel){
+	t_leia * novo = (t_leia *) malloc(sizeof(t_leia));
+	novo->variavel = variavel;
+	return novo;
+}
+
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
 		return;
@@ -98,6 +124,8 @@ void imprimir_pos_ordem(no_arvore *no) {
 	lista_arg *arglista;
 	t_funcao *funcao;
 	t_lista_attr *t_attrlista;
+	t_escreva *escreva;
+	t_leia *leia;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -224,6 +252,16 @@ void imprimir_pos_ordem(no_arvore *no) {
 			printf(" (");
 			imprimir_pos_ordem((no_arvore *) funcao->args);
 			printf(") CHAMADA_FUNCAO");
+			break;
+		case ESCREVA:
+			escreva = no->dado.escreva;
+			printf(" (");
+			imprimir_pos_ordem((no_arvore *) escreva->args);
+			printf(") ESCREVA");
+			break;
+		case LEIA:
+			leia = no->dado.leia;
+			printf("%s LEIA", ((simbolo *) leia->variavel)->lexema);
 			break;
 	}
 

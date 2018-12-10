@@ -38,6 +38,14 @@ typedef struct t_funcao {
 	void *args;
 } t_funcao;
 
+typedef struct t_escreva {
+	void *args;
+} t_escreva;
+
+typedef struct t_leia {
+	simbolo *variavel;
+} t_leia;
+
 //Simula a superclasse abstrata 
 typedef union valor_sintatico {
 	t_expr *expr;
@@ -46,6 +54,8 @@ typedef union valor_sintatico {
 	lista_arg *arglista;
 	t_funcao *funcao;
 	t_lista_attr *t_attrlista;
+	t_escreva *escreva;
+	t_leia *leia;
 } valor_sintatico;
 
 typedef struct no_arvore {
@@ -71,6 +81,12 @@ lista_arg * criar_lista_arg(void *dir, void *esq);
 
 no_arvore * criar_no_funcao(simbolo *nome, void *args);
 t_funcao * criar_funcao(simbolo *nome, void *args);
+
+no_arvore * criar_no_escreva(void *args);
+t_escreva * criar_escreva(void *args);
+
+no_arvore * criar_no_leia(simbolo *variavel);
+t_leia * criar_leia(simbolo *variavel);
 
 void imprimir_pos_ordem(no_arvore *no);
 

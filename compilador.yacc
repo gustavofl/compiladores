@@ -167,8 +167,8 @@ stmt:
 	| atr_array									{}
 	| expr 										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| exprlogica								{ imprimir_pos_ordem((no_arvore *) $1); }
-	| leia 										{}
-	| escreva 									{}
+	| leia 										{ imprimir_pos_ordem((no_arvore *) $1); }
+	| escreva 									{ imprimir_pos_ordem((no_arvore *) $1); }
 	| se_senao 									{}
 	| enquanto 									{}
 	;
@@ -247,14 +247,14 @@ leia:
 	LEIA 
 	'(' 
 	ID 
-	')'											{}
+	')'											{ $$ = (long) criar_no_leia((void *) localizar_simbolo(topo_pilha(pilha), (char *) $3)); }
 	;
 
 escreva:
 	ESCREVA 
 	'(' 
 	lista_argumentos_vazio 
-	')'											{}
+	')'											{ $$ = (long) criar_no_escreva((void *) $3); }
 	;
 
 chamar_funcao:
