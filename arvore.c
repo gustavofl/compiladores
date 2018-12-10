@@ -159,6 +159,22 @@ t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista_param *params, void *bl
 	return novo;
 }
 
+no_arvore * criar_no_decl_array(int tipo, simbolo *nome, void *tamanho, void *valores_iniciais){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = DECL_ARRAY;
+	novo->dado.declarray = criar_decl_array(tipo, nome, tamanho, valores_iniciais);
+	return novo;
+}
+
+t_decl_array * criar_decl_array(int tipo, simbolo *nome, void *tamanho, void *valores_iniciais){
+	t_decl_array *novo = (t_decl_array *) malloc(sizeof(t_decl_array));
+	novo->tipo = tipo;
+	novo->nome = nome;
+	novo->tamanho = tamanho;
+	novo->valores_iniciais = valores_iniciais;
+	return novo;
+}
+
 
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
@@ -174,6 +190,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 	t_funcao *funcao;
 	t_lista_param *listaparam;
 	t_param *param;
+	t_decl_array *declarray;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -337,6 +354,26 @@ void imprimir_pos_ordem(no_arvore *no) {
 					break;
 			} 
 			printf("%s", ((simbolo *) param->variavel)->lexema);
+			break;
+		case DECL_ARRAY:
+			declarray = no->dado.declarray;
+			switch(declarray->tipo){
+				case INT:
+					printf("INT ");
+					break;
+				case REAL:
+					printf("REAL ");
+					break;
+				default:
+					printf("UNDEFINED ");
+					break;
+			} 
+			printf("%s", ((simbolo *) declarray->nome)->lexema);
+			printf(" [");
+			imprimir_pos_ordem((no_arvore *) declarray->tamanho);
+			printf("] <- { ");
+			imprimir_pos_ordem((no_arvore *) declarray->valores_iniciais);
+			printf("}");
 			break;
 	}
 

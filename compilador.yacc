@@ -10,6 +10,10 @@
 int yylex(void);
 void yyerror(char *);
 
+no_arvore * buscar_variavel_declarada(char *lexema);
+no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
+void verificar_simbolo_duplicado(simbolo *s);
+
 pilha_contexto *pilha;
 tabela_numero t_numeros;
 fila_buffer fila;
@@ -22,7 +26,8 @@ fila_buffer fila;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY
+
 %left OU
 %left E
 %left DIFERENTE IGUAL_COMP
@@ -56,11 +61,8 @@ componente_programa:
 decl:
 	TIPO lista_var								{
 													while(fila.primeiro != NULL){
-														buffer *b = pop_buffer(&fila);
-														if(b->tipo == ID)
-															((simbolo *) b->dado)->tipo = $1;
-														else if(b->tipo == NO_ARVORE)
-															((simbolo *) ((no_arvore *) b->dado)->dado.attr->resultado)->tipo = $1;
+														simbolo *s = pop_buffer(&fila);
+														s->tipo = $1;
 													}
 
 													$$ = $2;
@@ -75,28 +77,20 @@ lista_var:
 variavel:
 	atribuicao									{
 													no_arvore *no = (no_arvore *) $1;
-													simbolo *novo = no->dado.attr->resultado;
-													simbolo *busca = localizar_simbolo_contexto(topo_pilha(pilha), novo->lexema);
-													if(busca != NULL){
-														yyerror("Multiplas declaracoes de variavel.");
-														exit(0);
-													}
-													inserir_simbolo(topo_pilha(pilha), novo);
+													simbolo *s = no->dado.attr->resultado;
 
-													add_buffer(&fila, NO_ARVORE, (void *) $1);
+													verificar_simbolo_duplicado(s);
+
+													add_buffer(&fila, s);
 													
 													$$ = $1;
 												}
 	| ID 										{
-													simbolo *s = localizar_simbolo_contexto(topo_pilha(pilha), (char *) $1);
-													if(s != NULL){
-														yyerror("Multiplas declaracoes de variavel.");
-														exit(0);
-													}
-													s = criar_simbolo((char *) $1, 0);
-													inserir_simbolo(topo_pilha(pilha), s);
+													simbolo *s = criar_simbolo((char *) $1, 0);
 
-													add_buffer(&fila, ID, s);
+													verificar_simbolo_duplicado(s);
+
+													add_buffer(&fila, s);
 
 													$$ = (long) NULL;
 												}
@@ -162,16 +156,10 @@ stmts:
 stmt:
 	decl										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| atribuicao								{
-													no_arvore *no = (no_arvore *) $1;
-													simbolo *novo = no->dado.attr->resultado;
-													simbolo *busca = localizar_simbolo(topo_pilha(pilha), novo->lexema);
-													if(busca == NULL){
-														yyerror("Variavel nao declarada.");
-														exit(0);
-													}
+													buscar_variavel_declarada(((no_arvore *) $1)->dado.attr->resultado->lexema);
 													imprimir_pos_ordem((no_arvore *) $1); 
 												}
-	| decl_array								{}
+	| decl_array								{ imprimir_pos_ordem((no_arvore *) $1); }
 	| atr_array									{}
 	| array 									{}
 	| expr 										{ imprimir_pos_ordem((no_arvore *) $1); }
@@ -183,45 +171,13 @@ stmt:
 	;
 
 numero_inteiro:
-	NUM_INT										{
-													char *lexema = (char *) $1;
-													numero *n = localizar_numero(&t_numeros, lexema, INT); 
-													if(n == NULL){
-														n = criar_numero(lexema, INT);
-														inserir_numero(&t_numeros, n);
-													}
-													$$ = (long) n;
-												}
+	NUM_INT										{ $$ = (long) buscar_ou_add_numero((char *) $1, INT); }
 	;
 
 expr:
-	numero_inteiro								{
-													numero *n = (numero *) $1;
-													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
-													no->dado.expr->tipo = INT;
-													$$ = (long) no;
-												}
-	| ID 	%prec REDUCE						{ 
-													simbolo *s = localizar_simbolo(topo_pilha(pilha), (char *) $1);
-													if(s == NULL){
-														yyerror("Variavel nao declarada.");
-														exit(0);
-													}
-													no_arvore *no = criar_no_expressao(ID, s, NULL);
-													no->dado.expr->tipo = s->tipo;
-													$$ = (long) no;
-												}
-	| NUM_REAL									{
-													char *lexema = (char *) $1;
-													numero *n = localizar_numero(&t_numeros, lexema, REAL); 
-													if(n == NULL){
-														n = criar_numero(lexema, REAL);
-														inserir_numero(&t_numeros, n);
-													}
-													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
-													no->dado.expr->tipo = REAL;
-													$$ = (long) no;
-												}
+	numero_inteiro								{ $$ = $1; }
+	| ID 	%prec REDUCE						{ $$ = (long) buscar_variavel_declarada((char *) $1); }
+	| NUM_REAL									{ $$ = (long) buscar_ou_add_numero((char *) $1, REAL); }
 	| chamar_funcao								{ $$ = $1; }
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
 	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
@@ -251,9 +207,12 @@ exprlogica:
 	;
 
 decl_array:
-	TIPO ID '[' numero_inteiro ']'											{}
-	|  TIPO ID '[' numero_inteiro ']' '=' '{' lista_argumentos '}'			{}	
-	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'							{}
+	TIPO ID '[' numero_inteiro ']'										{
+																			simbolo *nome = criar_simbolo ((void *) $2, $1);
+																			$$ = (long) criar_no_decl_array($1, nome, (void *) $4, NULL);
+																		}
+	|  TIPO ID '[' numero_inteiro ']' '=' '{' lista_argumentos '}'		{ $$ = (long) criar_no_decl_array($1, criar_simbolo ((void *) $2, $1), (void *) $4, (void *) $8); }	
+	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'						{ $$ = (long) criar_no_decl_array($1, criar_simbolo ((void *) $2, $1), NULL, (void *) $7); }
 	;
 
 atr_array:
@@ -304,6 +263,37 @@ enquanto:
 	ENQUANTO '(' exprlogica ')' bloco			{}
 	;
 %%
+
+no_arvore * buscar_variavel_declarada(char *lexema) {
+	simbolo *s = localizar_simbolo(topo_pilha(pilha), lexema);
+	if(s == NULL){
+		yyerror("Variavel nao declarada.");
+		exit(0);
+	}
+	no_arvore *no = criar_no_expressao(ID, s, NULL);
+	no->dado.expr->tipo = s->tipo;
+	return no;
+}
+
+no_arvore * buscar_ou_add_numero(char *lexema, int tipo) {
+	numero *n = localizar_numero(&t_numeros, lexema, tipo); 
+	if(n == NULL){
+		n = criar_numero(lexema, tipo);
+		inserir_numero(&t_numeros, n);
+	}
+	no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
+	no->dado.expr->tipo = tipo;
+	return no;
+}
+
+void verificar_simbolo_duplicado(simbolo *s) {
+	simbolo *novo = localizar_simbolo_contexto(topo_pilha(pilha), s->lexema);
+	if(novo != NULL){
+		yyerror("Multiplas declaracoes de variavel.");
+		exit(0);
+	}
+	inserir_simbolo(topo_pilha(pilha), s);
+}
 
 void yyerror(char *s) {
 	fprintf(stderr, "%s\n", s);

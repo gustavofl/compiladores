@@ -41,8 +41,7 @@ typedef struct pilha_contexto  {
 
 // usado na atribuicao de variaveis em declaracoes multiplas
 typedef struct buffer{
-	int tipo; // ID NO_ARVORE
-	void *dado;
+	simbolo *s;
 	struct buffer *proximo;
 } buffer;
 
@@ -60,8 +59,8 @@ simbolo * localizar_simbolo (tabela *contexto, char *lexema);
 simbolo * localizar_simbolo_contexto (tabela *contexto, char *lexema);
 simbolo *  criar_simbolo (char *lexema, int tipo);
 
-void add_buffer(fila_buffer *fila, int tipo, void *dado);
-buffer *pop_buffer(fila_buffer *fila);
+void add_buffer(fila_buffer *fila, simbolo *s);
+simbolo *pop_buffer(fila_buffer *fila);
 
 pilha_contexto* empilhar_contexto(pilha_contexto *pilha, tabela *contexto);
 void desempilhar_contexto(pilha_contexto **pilha);

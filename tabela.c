@@ -135,18 +135,17 @@ tabela* topo_pilha(pilha_contexto *pilha) {
 
 }
 
-void add_buffer(fila_buffer *fila, int tipo, void *dado){
+void add_buffer(fila_buffer *fila, simbolo *s){
 	buffer *novo = (buffer *) malloc (sizeof(buffer));
-	novo->tipo = tipo;
-	novo->dado = dado;
+	novo->s = s;
 	novo->proximo = fila->primeiro;
 	fila->primeiro = novo;
 }
 
-buffer *pop_buffer(fila_buffer *fila){
+simbolo *pop_buffer(fila_buffer *fila){
 	buffer *temp = fila->primeiro;
 	fila->primeiro = temp->proximo;
-	return temp;
+	return temp->s;
 }
 
 void imprimir_contexto(tabela *t) {
