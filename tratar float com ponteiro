@@ -1,9 +1,0 @@
-
-
-{digito}+\.{digito}+ {
-						float *ptr_valor = (float *) malloc(sizeof(float));
-						*ptr_valor = atof(yytext);
-						yylval = (long) ptr_valor;
-						return NUM_REAL;
-					}
-
