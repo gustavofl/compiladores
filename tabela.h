@@ -39,6 +39,17 @@ typedef struct pilha_contexto  {
 	struct pilha_contexto *anterior;
 } pilha_contexto;
 
+// usado na atribuicao de variaveis em declaracoes multiplas
+typedef struct buffer{
+	int tipo; // ID NO_ARVORE
+	void *dado;
+	struct buffer *proximo;
+} buffer;
+
+typedef struct fila_buffer{
+	buffer *primeiro;
+} fila_buffer;
+
 void inserir_numero(tabela_numero *t, numero *n);
 numero * localizar_numero (tabela_numero *t, char *lexema, int tipo);
 numero * criar_numero (char *lexema, int tipo);
@@ -46,7 +57,11 @@ int numeros_iguais(numero *n1, numero *n2);
 
 void inserir_simbolo(tabela *t, simbolo *s);
 simbolo * localizar_simbolo (tabela *contexto, char *lexema);
+simbolo * localizar_simbolo_contexto (tabela *contexto, char *lexema);
 simbolo *  criar_simbolo (char *lexema, int tipo);
+
+void add_buffer(fila_buffer *fila, int tipo, void *dado);
+buffer *pop_buffer(fila_buffer *fila);
 
 pilha_contexto* empilhar_contexto(pilha_contexto *pilha, tabela *contexto);
 void desempilhar_contexto(pilha_contexto **pilha);

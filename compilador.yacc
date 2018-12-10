@@ -3,6 +3,7 @@
 #define YYSTYPE long int
 #endif
 #include <stdio.h>
+#include <stdlib.h>
 #include "tabela.h"
 #include "arvore.h"
 
@@ -11,13 +12,17 @@ void yyerror(char *);
 
 pilha_contexto *pilha;
 tabela_numero t_numeros;
+fila_buffer fila;
+
+// variavel para auxiliar na declaracao multiplas de variavel
+// long tipo_attr_multiplas = 0;
 
 %}
 
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE
 
 %left OU
 %left E
@@ -30,10 +35,13 @@ tabela_numero t_numeros;
 %nonassoc REDUCE
 %nonassoc '('
 %nonassoc SENAO
+%nonassoc '['
 %%
 
 program:
-	PROGRAMA '{' corpo_programa '}'				{}
+	PROGRAMA '{' 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
+	corpo_programa 								{}
+	'}'											{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 	;
 
 corpo_programa:
@@ -47,7 +55,15 @@ componente_programa:
 	;
 
 decl:
-	TIPO lista_var								{}
+	TIPO lista_var								{
+													while(fila.primeiro != NULL){
+														buffer *b = pop_buffer(&fila);
+														if(b->tipo == ID)
+															((simbolo *) b->dado)->tipo = $1;
+														else if(b->tipo == NO_ARVORE)
+															((simbolo *) ((no_arvore *) b->dado)->dado.attr->resultado)->tipo = $1;
+													}
+												}
 	;
 
 lista_var:
@@ -56,12 +72,38 @@ lista_var:
 	;
 
 variavel:
-	atribuicao									{}
-	| ID 										{}
+	atribuicao									{
+													no_arvore *no = (no_arvore *) $1;
+													simbolo *novo = no->dado.attr->resultado;
+													simbolo *busca = localizar_simbolo_contexto(topo_pilha(pilha), novo->lexema);
+													if(busca != NULL){
+														yyerror("Multiplas declaracoes de variavel.");
+														exit(0);
+													}
+													inserir_simbolo(topo_pilha(pilha), novo);
+													add_buffer(&fila, NO_ARVORE, (void *) $1);
+													imprimir_pos_ordem((no_arvore *) $1);
+
+													// DEV
+													// como fazer para passar o no_arvore ($1) para as regras anteriores?
+												}
+	| ID 										{
+													simbolo *s = localizar_simbolo_contexto(topo_pilha(pilha), (char *) $1);
+													if(s != NULL){
+														yyerror("Multiplas declaracoes de variavel.");
+														exit(0);
+													}
+													s = criar_simbolo((char *) $1, 0);
+													inserir_simbolo(topo_pilha(pilha), s);
+													add_buffer(&fila, ID, s);
+												}
 	;
 
 atribuicao:
-	ID '=' expr 								{}
+	ID '=' expr 								{
+													simbolo *s = criar_simbolo((char *) $1, 0);
+													$$ = (long) criar_no_atribuicao(s, (void *) $3);
+												}
 	;
 
 funcao:
@@ -88,22 +130,37 @@ tipo_retorno:
 	;
 
 bloco_composto:
-	'{' stmts '}'								{}
+	'{' 										{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
+	stmts 										{}
+	'}'											{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 	;
 
 bloco:
 	bloco_composto								{}
-	| stmt 										{}
+	| 											{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); } 		
+		stmt 		
+												{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 	;
 
 stmts:
-	stmts stmt 									{}
+	stmts stmt 									{ /* imprimir_pos_ordem((no_arvore *) $2); */ }
 	|
 	;
 
 stmt:
-	decl										{}
-	| atribuicao								{}
+	decl										{ /* imprimir_pos_ordem((no_arvore *) $1); */ }
+	| atribuicao								{
+													no_arvore *no = (no_arvore *) $1;
+													simbolo *novo = no->dado.attr->resultado;
+													simbolo *busca = localizar_simbolo(topo_pilha(pilha), novo->lexema);
+													if(busca == NULL){
+														yyerror("Variavel nao declarada.");
+														exit(0);
+													}
+													imprimir_pos_ordem((no_arvore *) $1); 
+												}
+	| decl_array								{}
+	| atr_array									{}
 	| expr 										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| exprlogica								{ imprimir_pos_ordem((no_arvore *) $1); }
 	| leia 										{}
@@ -121,10 +178,19 @@ expr:
 														inserir_numero(&t_numeros, n);
 													}
 													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
-													((numero *) no->dado.exprlogica->dir)->tipo = INT;
+													no->dado.expr->tipo = INT;
 													$$ = (long) no;
 												}
-	| ID 	%prec REDUCE						{}		// testar se está realmente funcionando...
+	| ID 	%prec REDUCE						{ 
+													simbolo *s = localizar_simbolo(topo_pilha(pilha), (char *) $1);
+													if(s == NULL){
+														yyerror("Variavel nao declarada.");
+														exit(0);
+													}
+													no_arvore *no = criar_no_expressao(ID, s, NULL);
+													no->dado.expr->tipo = s->tipo;
+													$$ = (long) no;
+												}
 	| NUM_REAL									{
 													char *lexema = (char *) $1;
 													numero *n = localizar_numero(&t_numeros, lexema, REAL); 
@@ -133,12 +199,10 @@ expr:
 														inserir_numero(&t_numeros, n);
 													}
 													no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
-													((numero *) no->dado.exprlogica->dir)->tipo = REAL;
+													no->dado.expr->tipo = REAL;
 													$$ = (long) no;
 												}
 	| chamar_funcao								{}
-	| decl_array								{}
-	| atr_array									{}
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
 	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
 	| expr '%' expr								{ $$ = (long) criar_no_expressao(MOD, (void *) $3, (void *) $1); }
@@ -171,10 +235,9 @@ decl_array:
 	|  TIPO ID '[' NUM_INT ']' '=' '{' lista_argumentos '}'		{}	
 	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'				{}
 	;
-
 atr_array:
-	ID '[' NUM_INT ']' '=' NUM_INT				{}
-	| ID '[' NUM_INT ']' '=' NUM_REAL			{}
+	ID '[' NUM_INT ']' '=' NUM_INT								{}
+	| ID '[' NUM_INT ']' '=' NUM_REAL							{}
 
 leia:
 	LEIA 

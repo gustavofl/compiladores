@@ -90,6 +90,16 @@ simbolo * localizar_simbolo (tabela *contexto, char *lexema){
 	return NULL;
 }
 
+simbolo * localizar_simbolo_contexto (tabela *contexto, char *lexema){
+	no_tabela *temp = contexto->primeiro;
+	while(temp != NULL) {
+		if(strcmp(temp->dado->lexema, lexema) == 0) {
+			return temp->dado;
+		}
+		temp = temp->proximo;
+	}
+	return NULL;
+}
 
 simbolo *  criar_simbolo (char *lexema, int tipo) {
 	simbolo *novo = (simbolo *) malloc(sizeof(simbolo));
@@ -125,18 +135,36 @@ tabela* topo_pilha(pilha_contexto *pilha) {
 
 }
 
+void add_buffer(fila_buffer *fila, int tipo, void *dado){
+	buffer *novo = (buffer *) malloc (sizeof(buffer));
+	novo->tipo = tipo;
+	novo->dado = dado;
+	novo->proximo = fila->primeiro;
+	fila->primeiro = novo;
+}
+
+buffer *pop_buffer(fila_buffer *fila){
+	buffer *temp = fila->primeiro;
+	fila->primeiro = temp->proximo;
+	return temp;
+}
+
 void imprimir_contexto(tabela *t) {
+	if(t == NULL)
+		printf("a\n");
 	no_tabela * temp = t->primeiro;
 	printf("----------------------------------\n");
-/*
+
 	while(temp != NULL) {
 		if(temp->dado->tipo == INT) 
-			printf("\t INT: %s (%d)\n", temp->dado->lexema, temp->dado->val.dval);
+			printf("\t INT: %s\n", temp->dado->lexema);
+		else if(temp->dado->tipo == REAL) 
+			printf("\t FLOAT: %s\n", temp->dado->lexema);	
 		else
-			printf("\t FLOAT: %s (%d)\n", temp->dado->lexema, temp->dado->val.dval);	
+			printf("\t UNDEFINED: %s\n", temp->dado->lexema);	
 		temp = temp->proximo;
 	}
-*/
+
 	printf("==================================\n");
 }
 

@@ -155,6 +155,11 @@ void imprimir_pos_ordem(no_arvore *no) {
 					break;
 			}
 			break;
+		case ATTR:
+			printf("%s ", no->dado.attr->resultado->lexema);
+			imprimir_pos_ordem((no_arvore *) no->dado.attr->expressao);
+			printf("=");
+			break;
 	}
 
 	printf(" ");
