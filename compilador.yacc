@@ -22,7 +22,7 @@ fila_buffer fila;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG
 
 %left OU
 %left E
@@ -209,7 +209,7 @@ expr:
 													no->dado.expr->tipo = REAL;
 													$$ = (long) no;
 												}
-	| chamar_funcao								{}
+	| chamar_funcao								{ $$ = $1; }
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
 	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
 	| expr '%' expr								{ $$ = (long) criar_no_expressao(MOD, (void *) $3, (void *) $1); }
@@ -264,17 +264,17 @@ chamar_funcao:
 	ID
 	'(' 
 	lista_argumentos_vazio 
-	')'											{}
+	')'											{ $$ = (long) criar_no_funcao((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
 	;
 
 lista_argumentos_vazio:
-	lista_argumentos 							{}
-	|
+	lista_argumentos 							{ $$ = $1; }
+	|											{ $$ = (long) NULL; }
 	;
 
 lista_argumentos:
-	lista_argumentos ',' expr 					{}
-	| expr 										{}
+	lista_argumentos ',' expr 					{ $$ = (long) criar_no_lista_arg((void *) $3, (void *) $1); }
+	| expr 										{ $$ = (long) criar_no_lista_arg((void *) $1, NULL); }
 	;
 
 se_senao:

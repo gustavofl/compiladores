@@ -28,16 +28,28 @@ typedef struct lista_attr {
 	struct lista_attr *proximo;
 } lista_attr;
 
+typedef struct no_lista_arg {
+	void *dir;
+	void *esq;
+} lista_arg;
+
+typedef struct t_funcao {
+	simbolo *nome;
+	void *args;
+} t_funcao;
+
 //Simula a superclasse abstrata 
 typedef union valor_sintatico {
 	t_expr *expr;
 	t_expr_logica *exprlogica;
 	t_attr *attr;
 	lista_attr *attrlista;
+	lista_arg *arglista;
+	t_funcao *funcao;
 } valor_sintatico;
 
 typedef struct no_arvore {
-	int tipo; //expr, attr, stmt, attrlista, ...
+	int tipo; //expr, attr, stmt, attrlista, arglista, funcao
 	valor_sintatico dado;
 	//ponteiro para tabela de símbolos
 } no_arvore;
@@ -54,6 +66,12 @@ t_attr * criar_atribuicao(simbolo *resultado, void *expressao);
 no_arvore * criar_no_lista_attr(lista_attr * lista);
 lista_attr * lista_atribuicao_add(lista_attr *lista, lista_attr *attr);
 lista_attr * criar_lista_atribuicao(no_arvore *no);
+
+no_arvore * criar_no_lista_arg(void *dir, void *esq);
+lista_arg * criar_lista_arg(void *dir, void *esq);
+
+no_arvore * criar_no_funcao(simbolo *nome, void *args);
+t_funcao * criar_funcao(simbolo *nome, void *args);
 
 void imprimir_pos_ordem(no_arvore *no);
 

@@ -80,6 +80,34 @@ lista_attr * criar_lista_atribuicao(no_arvore *no) {
 	return novo;
 }
 
+no_arvore * criar_no_lista_arg(void *dir, void *esq) {
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = LISTA_ARG;
+	novo->dado.arglista = criar_lista_arg(dir, esq);
+	return novo;
+}
+
+lista_arg * criar_lista_arg(void *dir, void *esq) {
+	lista_arg *novo = (lista_arg *) malloc(sizeof(lista_arg));
+	novo->dir = dir;
+	novo->esq = esq;
+	return novo;
+}
+
+no_arvore * criar_no_funcao(simbolo *nome, void *args){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = FUNCAO;
+	novo->dado.funcao = criar_funcao(nome, args);
+	return novo;
+}
+
+t_funcao * criar_funcao(simbolo *nome, void *args){
+	t_funcao * novo = (t_funcao *) malloc(sizeof(t_funcao));
+	novo->nome = nome;
+	novo->args = args;
+	return novo;
+}
+
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
 		return;
@@ -87,6 +115,8 @@ void imprimir_pos_ordem(no_arvore *no) {
 	t_expr_logica *exprlogica;
 	t_expr * expr;
 	lista_attr *attrlista;
+	lista_arg *arglista;
+	t_funcao *funcao;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -187,6 +217,9 @@ void imprimir_pos_ordem(no_arvore *no) {
 					imprimir_pos_ordem((no_arvore *) expr->dir);
 					printf("%c",'%');
 					break;
+				case ID:
+					printf("%s", ((simbolo *) expr->dir)->lexema);
+					break;
 			}
 			break;
 		case ATTR:
@@ -195,18 +228,23 @@ void imprimir_pos_ordem(no_arvore *no) {
 			printf("=");
 			break;
 		case LISTA_ATTR:
-			if(no == NULL)
-				printf("=NULL");
-			else {
-				if(no->dado.attrlista == NULL)
-					printf("->DADO=NULL");
-			}
-			
 			attrlista = no->dado.attrlista;
 			while(attrlista != NULL) {
 				imprimir_pos_ordem((no_arvore *) attrlista->dado);
 				attrlista = attrlista->proximo;
 			}
+			break;
+		case LISTA_ARG:
+			arglista = no->dado.arglista;
+			imprimir_pos_ordem((no_arvore *) arglista->esq);
+			imprimir_pos_ordem((no_arvore *) arglista->dir);
+			break;
+		case FUNCAO:
+			funcao = no->dado.funcao;
+			printf("%s", ((simbolo *) funcao->nome)->lexema);
+			printf(" (");
+			imprimir_pos_ordem((no_arvore *) funcao->args);
+			printf(") CHAMADA_FUNCAO");
 			break;
 	}
 
