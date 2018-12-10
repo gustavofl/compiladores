@@ -47,12 +47,46 @@ t_attr * criar_atribuicao(simbolo *resultado, void *expressao){
 	return novo;
 }
 
+no_arvore * criar_no_lista_attr(lista_attr * lista) {
+	if((long) lista == NULO)
+		return NULL;
+
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = LISTA_ATTR;
+	novo->dado.attrlista = lista;
+	return novo;
+}
+
+lista_attr * lista_atribuicao_add(lista_attr *lista, lista_attr *attr) {
+	if((long) lista == NULO && (long) attr == NULO)
+		return NULL;
+	else if((long) lista == NULO) // logo (long) attr != NULO
+		return attr;
+	else if((long) attr == NULO) // logo (long) lista != NULO
+		return lista;
+	
+	// se nao entrou em nenhum if, entao (long) lista != NULO && (long) attr != NULO
+
+	lista_attr *novo = (lista_attr *) malloc(sizeof(lista_attr));
+	novo->dado = attr->dado;
+	novo->proximo = lista;
+	return novo;
+}
+
+lista_attr * criar_lista_atribuicao(no_arvore *no) {
+	lista_attr *novo = (lista_attr *) malloc(sizeof(lista_attr));
+	novo->dado = no;
+	novo->proximo = NULL;
+	return novo;
+}
+
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
 		return;
 
 	t_expr_logica *exprlogica;
 	t_expr * expr;
+	lista_attr *attrlista;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -159,6 +193,20 @@ void imprimir_pos_ordem(no_arvore *no) {
 			printf("%s ", no->dado.attr->resultado->lexema);
 			imprimir_pos_ordem((no_arvore *) no->dado.attr->expressao);
 			printf("=");
+			break;
+		case LISTA_ATTR:
+			if(no == NULL)
+				printf("=NULL");
+			else {
+				if(no->dado.attrlista == NULL)
+					printf("->DADO=NULL");
+			}
+			
+			attrlista = no->dado.attrlista;
+			while(attrlista != NULL) {
+				imprimir_pos_ordem((no_arvore *) attrlista->dado);
+				attrlista = attrlista->proximo;
+			}
 			break;
 	}
 

@@ -1,8 +1,12 @@
 programa {
-	real h
+	real h=9
 	funcao inicio () {
-		inteiro a,y,w,f=4,v
-		real l=1.0
+		inteiro d,a=1,y=0,w,f=4,v
+		real l,m=3.4
 		y=809
+	}
+
+	funcao teste() {
+		a=4
 	}
 }

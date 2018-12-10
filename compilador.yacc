@@ -22,7 +22,7 @@ fila_buffer fila;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR
 
 %left OU
 %left E
@@ -50,7 +50,7 @@ corpo_programa:
 	;
 
 componente_programa:
-	decl										{}
+	decl										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| funcao 									{}
 	;
 
@@ -63,12 +63,18 @@ decl:
 														else if(b->tipo == NO_ARVORE)
 															((simbolo *) ((no_arvore *) b->dado)->dado.attr->resultado)->tipo = $1;
 													}
+
+													no_arvore *no = criar_no_lista_attr((lista_attr *) $2);
+													$$ = (long) no;
 												}
 	;
 
 lista_var:
-	lista_var ',' variavel 						{}
-	| variavel 									{}
+	lista_var ',' variavel 						{
+													lista_attr *lista = lista_atribuicao_add((lista_attr *) $1, (lista_attr *) $3);
+													$$ = (long) lista;
+												}
+	| variavel 									{ $$ = $1; }
 	;
 
 variavel:
@@ -82,10 +88,9 @@ variavel:
 													}
 													inserir_simbolo(topo_pilha(pilha), novo);
 													add_buffer(&fila, NO_ARVORE, (void *) $1);
-													imprimir_pos_ordem((no_arvore *) $1);
-
-													// DEV
-													// como fazer para passar o no_arvore ($1) para as regras anteriores?
+													
+													lista_attr *lista = criar_lista_atribuicao(no);
+													$$ = (long) lista;
 												}
 	| ID 										{
 													simbolo *s = localizar_simbolo_contexto(topo_pilha(pilha), (char *) $1);
@@ -96,6 +101,8 @@ variavel:
 													s = criar_simbolo((char *) $1, 0);
 													inserir_simbolo(topo_pilha(pilha), s);
 													add_buffer(&fila, ID, s);
+
+													$$ = NULO;
 												}
 	;
 
@@ -148,7 +155,7 @@ stmts:
 	;
 
 stmt:
-	decl										{ /* imprimir_pos_ordem((no_arvore *) $1); */ }
+	decl										{ imprimir_pos_ordem((no_arvore *) $1); }
 	| atribuicao								{
 													no_arvore *no = (no_arvore *) $1;
 													simbolo *novo = no->dado.attr->resultado;
