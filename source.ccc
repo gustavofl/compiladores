@@ -6,4 +6,8 @@ programa {
 		escreva(1,2,3)
 		leia(a)
 	}
+
+	funcao inteiro a(inteiro b, real c){
+	
+	}
 }

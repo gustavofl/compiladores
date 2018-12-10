@@ -75,15 +75,15 @@ t_lista_arg * criar_lista_arg(void *dir, void *esq) {
 	return novo;
 }
 
-no_arvore * criar_no_funcao(simbolo *nome, void *args){
+no_arvore * criar_no_chamada_funcao(simbolo *nome, void *args){
 	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
-	novo->tipo = FUNCAO;
-	novo->dado.funcao = criar_funcao(nome, args);
+	novo->tipo = CHAMADA_FUNCAO;
+	novo->dado.chamadafuncao = criar_chamada_funcao(nome, args);
 	return novo;
 }
 
-t_funcao * criar_funcao(simbolo *nome, void *args){
-	t_funcao * novo = (t_funcao *) malloc(sizeof(t_funcao));
+t_chamada_funcao * criar_chamada_funcao(simbolo *nome, void *args){
+	t_chamada_funcao * novo = (t_chamada_funcao *) malloc(sizeof(t_chamada_funcao));
 	novo->nome = nome;
 	novo->args = args;
 	return novo;
@@ -115,6 +115,51 @@ t_leia * criar_leia(simbolo *variavel){
 	return novo;
 }
 
+no_arvore * criar_no_param(int tipo, simbolo *variavel){
+	no_arvore *novo = (no_arvore *)  malloc(sizeof(no_arvore));
+	novo->tipo = PARAMETRO;
+	novo->dado.param =  criar_param(tipo, variavel);
+	return novo;
+}
+
+t_param * criar_param(int tipo, simbolo *variavel){ 
+	t_param * novo = (t_param *) malloc(sizeof(t_param));
+	novo->tipo = tipo;
+	novo->variavel = variavel;
+	return novo;
+}
+
+no_arvore * criar_no_lista_param(void *dir, void *esq){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = LISTA_PARAMETRO;
+	novo->dado.listaparam = criar_lista_param(dir, esq);
+	return novo;
+}
+
+t_lista_param * criar_lista_param(void *dir, void *esq){
+	t_lista_param *novo = (t_lista_param *) malloc(sizeof(t_lista_param));
+	novo->dir = dir;
+	novo->esq = esq;
+	return novo;
+}
+
+no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista_param *params, void *bloco){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = FUNCAO;
+	novo->dado.funcao = criar_funcao(tipo, nome, params, bloco);
+	return novo;
+}
+
+t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista_param *params, void *bloco){
+	t_funcao *novo = (t_funcao *) malloc(sizeof(t_funcao));
+	novo->tipo = tipo;
+	novo->nome = nome;
+	novo->params = params;
+	novo->bloco = bloco;
+	return novo;
+}
+
+
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
 		return;
@@ -122,10 +167,13 @@ void imprimir_pos_ordem(no_arvore *no) {
 	t_expr_logica *exprlogica;
 	t_expr * expr;
 	t_lista_arg *arglista;
-	t_funcao *funcao;
+	t_chamada_funcao *chamadafuncao;
 	t_lista_attr *t_attrlista;
 	t_escreva *escreva;
 	t_leia *leia;
+	t_funcao *funcao;
+	t_lista_param *listaparam;
+	t_param *param;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -246,11 +294,11 @@ void imprimir_pos_ordem(no_arvore *no) {
 			imprimir_pos_ordem((no_arvore *) arglista->esq);
 			imprimir_pos_ordem((no_arvore *) arglista->dir);
 			break;
-		case FUNCAO:
-			funcao = no->dado.funcao;
-			printf("%s", ((simbolo *) funcao->nome)->lexema);
+		case CHAMADA_FUNCAO:
+			chamadafuncao = no->dado.chamadafuncao;
+			printf("%s", ((simbolo *) chamadafuncao->nome)->lexema);
 			printf(" (");
-			imprimir_pos_ordem((no_arvore *) funcao->args);
+			imprimir_pos_ordem((no_arvore *) chamadafuncao->args);
 			printf(") CHAMADA_FUNCAO");
 			break;
 		case ESCREVA:
@@ -262,6 +310,33 @@ void imprimir_pos_ordem(no_arvore *no) {
 		case LEIA:
 			leia = no->dado.leia;
 			printf("%s LEIA", ((simbolo *) leia->variavel)->lexema);
+			break;
+		case FUNCAO:
+			funcao = no->dado.funcao;
+			printf("%s", ((simbolo *) funcao->nome)->lexema);
+			printf(" (");
+			imprimir_pos_ordem((no_arvore *) funcao->params);
+			printf(") FUNCAO");
+			break;
+		case LISTA_PARAMETRO:
+			listaparam = no->dado.listaparam;
+			imprimir_pos_ordem((no_arvore *) listaparam->esq);
+			imprimir_pos_ordem((no_arvore *) listaparam->dir);
+			break;
+		case PARAMETRO:
+			param = no->dado.param;
+			switch(param->tipo){
+				case INT:
+					printf("INT ");
+					break;
+				case REAL:
+					printf("REAL ");
+					break;
+				default:
+					printf("UNDEFINED ");
+					break;
+			} 
+			printf("%s", ((simbolo *) param->variavel)->lexema);
 			break;
 	}
 

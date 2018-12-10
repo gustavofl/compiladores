@@ -22,7 +22,7 @@ fila_buffer fila;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO
 
 %left OU
 %left E
@@ -51,7 +51,7 @@ corpo_programa:
 
 componente_programa:
 	decl										{ imprimir_pos_ordem((no_arvore *) $1); }
-	| funcao 									{}
+	| funcao 									{ imprimir_pos_ordem((no_arvore *) $1); }
 	;
 
 decl:
@@ -115,22 +115,31 @@ funcao:
 	'(' 
 	lista_parametros_vazio 
 	')' 
-	bloco_composto								{}
+	bloco_composto								{
+													simbolo *s = criar_simbolo((char *) $3, $2);
+													$$ = (long) criar_no_funcao($2, s, (void *) $5, NULL);
+												}
 	;
 
 lista_parametros_vazio:
-	lista_parametros 							{}
-	|
+	lista_parametros 							{ $$ = $1; }
+	|											{ $$ = (long) NULL; }
 	;
 
 lista_parametros:
-	lista_parametros ',' TIPO ID 				{}
-	| TIPO ID 									{}
+	lista_parametros ',' TIPO ID 				{
+													no_arvore *no = criar_no_param($3, criar_simbolo ((void *) $4, $3));
+													$$ = (long) criar_no_lista_param(no, (void *) $1);
+												}
+	| TIPO ID 									{
+													no_arvore *no = criar_no_param($1, criar_simbolo ((void *) $2, $1));
+													$$ = (long) criar_no_lista_param(no, NULL);
+												}
 	;
 
 tipo_retorno:
-	TIPO 										{}
-	|											{}
+	TIPO 										{ $$ = (long) $1; }
+	|											{ $$ = (long) NULL; }
 	;
 
 bloco_composto:
@@ -261,7 +270,7 @@ chamar_funcao:
 	ID
 	'(' 
 	lista_argumentos_vazio 
-	')'											{ $$ = (long) criar_no_funcao((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
+	')'											{ $$ = (long) criar_no_chamada_funcao((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
 	;
 
 lista_argumentos_vazio:
