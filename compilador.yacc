@@ -21,6 +21,7 @@ fila_buffer fila;
 // variavel para auxiliar na declaracao multiplas de variavel
 // long tipo_attr_multiplas = 0;
 
+// int yydebug = 1;
 %}
 
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
@@ -186,7 +187,6 @@ expr:
 	| expr '-' expr								{ $$ = (long) criar_no_expressao(SUB, (void *) $3, (void *) $1); }
 	| '(' expr ')'								{ $$ = $2; }
 //	| '-' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
-//	| '+' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
 	;
 
 
