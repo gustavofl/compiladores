@@ -30,7 +30,7 @@ tabela t_funcoes;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA
 
 %left OU
 %left E
@@ -74,7 +74,7 @@ decl:
 	;
 
 lista_var:
-	lista_var ',' variavel 						{ $$ = (long) criar_no_t_lista_attr((void *) $3, (void *) $1); }
+	lista_var ',' variavel 						{ $$ = (long) criar_no_t_lista((void *) $3, (void *) $1); }
 	| variavel 									{ $$ = $1; }
 	;
 
@@ -116,7 +116,7 @@ funcao:
 													verificar_existencia_lexema((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
 													inserir_simbolo(&t_funcoes, s);
-													$$ = (long) criar_no_funcao($2, s, (void *) $5, NULL);
+													$$ = (long) criar_no_funcao($2, s, (void *) $5, (void *) $7);
 												}
 	;
 
@@ -128,11 +128,11 @@ lista_parametros_vazio:
 lista_parametros:
 	lista_parametros ',' TIPO ID 				{
 													no_arvore *no = criar_no_param($3, criar_simbolo ((void *) $4, $3));
-													$$ = (long) criar_no_lista_param(no, (void *) $1);
+													$$ = (long) criar_no_t_lista(no, (void *) $1);
 												}
 	| TIPO ID 									{
 													no_arvore *no = criar_no_param($1, criar_simbolo ((void *) $2, $1));
-													$$ = (long) criar_no_lista_param(no, NULL);
+													$$ = (long) criar_no_t_lista(no, NULL);
 												}
 	;
 
@@ -255,8 +255,8 @@ lista_argumentos_vazio:
 	;
 
 lista_argumentos:
-	lista_argumentos ',' expr 					{ $$ = (long) criar_no_lista_arg((void *) $3, (void *) $1); }
-	| expr 										{ $$ = (long) criar_no_lista_arg((void *) $1, NULL); }
+	lista_argumentos ',' expr 					{ $$ = (long) criar_no_t_lista((void *) $3, (void *) $1); }
+	| expr 										{ $$ = (long) criar_no_t_lista((void *) $1, NULL); }
 	;
 
 se_senao:

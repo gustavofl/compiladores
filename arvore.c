@@ -47,29 +47,15 @@ t_attr * criar_atribuicao(simbolo *resultado, void *expressao){
 	return novo;
 }
 
-no_arvore * criar_no_t_lista_attr(void *dir, void *esq){
+no_arvore * criar_no_t_lista(void *dir, void *esq){
 	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
-	novo->tipo = LISTA_ATTR;
-	novo->dado.t_attrlista = criar_t_lista_attr(dir, esq);
+	novo->tipo = LISTA;
+	novo->dado.lista = criar_t_lista(dir, esq);
 	return novo;
 }
 
-t_lista_attr * criar_t_lista_attr(void *dir, void *esq){
-	t_lista_attr *novo = (t_lista_attr *) malloc(sizeof(t_lista_attr));
-	novo->dir = dir;
-	novo->esq = esq;
-	return novo;
-}
-
-no_arvore * criar_no_lista_arg(void *dir, void *esq) {
-	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
-	novo->tipo = LISTA_ARG;
-	novo->dado.lista_arg = criar_lista_arg(dir, esq);
-	return novo;
-}
-
-t_lista_arg * criar_lista_arg(void *dir, void *esq) {
-	t_lista_arg *novo = (t_lista_arg *) malloc(sizeof(t_lista_arg));
+t_lista * criar_t_lista(void *dir, void *esq){
+	t_lista *novo = (t_lista *) malloc(sizeof(t_lista));
 	novo->dir = dir;
 	novo->esq = esq;
 	return novo;
@@ -129,28 +115,14 @@ t_param * criar_param(int tipo, simbolo *variavel){
 	return novo;
 }
 
-no_arvore * criar_no_lista_param(void *dir, void *esq){
-	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
-	novo->tipo = LISTA_PARAMETRO;
-	novo->dado.listaparam = criar_lista_param(dir, esq);
-	return novo;
-}
-
-t_lista_param * criar_lista_param(void *dir, void *esq){
-	t_lista_param *novo = (t_lista_param *) malloc(sizeof(t_lista_param));
-	novo->dir = dir;
-	novo->esq = esq;
-	return novo;
-}
-
-no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista_param *params, void *bloco){
+no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco){
 	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
 	novo->tipo = FUNCAO;
 	novo->dado.funcao = criar_funcao(tipo, nome, params, bloco);
 	return novo;
 }
 
-t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista_param *params, void *bloco){
+t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco){
 	t_funcao *novo = (t_funcao *) malloc(sizeof(t_funcao));
 	novo->tipo = tipo;
 	novo->nome = nome;
@@ -182,15 +154,13 @@ void imprimir_pos_ordem(no_arvore *no) {
 
 	t_expr_logica *exprlogica;
 	t_expr * expr;
-	t_lista_arg *arglista;
 	t_chamada_funcao *chamadafuncao;
-	t_lista_attr *t_attrlista;
 	t_escreva *escreva;
 	t_leia *leia;
 	t_funcao *funcao;
-	t_lista_param *listaparam;
 	t_param *param;
 	t_decl_array *declarray;
+	t_lista *lista;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -301,15 +271,10 @@ void imprimir_pos_ordem(no_arvore *no) {
 			imprimir_pos_ordem((no_arvore *) no->dado.attr->expressao);
 			printf("=");
 			break;
-		case LISTA_ATTR:
-			t_attrlista = no->dado.t_attrlista;
-			imprimir_pos_ordem((no_arvore *) t_attrlista->esq);
-			imprimir_pos_ordem((no_arvore *) t_attrlista->dir);
-			break;
-		case LISTA_ARG:
-			arglista = no->dado.lista_arg;
-			imprimir_pos_ordem((no_arvore *) arglista->esq);
-			imprimir_pos_ordem((no_arvore *) arglista->dir);
+		case LISTA:
+			lista = no->dado.lista;
+			imprimir_pos_ordem((no_arvore *) lista->esq);
+			imprimir_pos_ordem((no_arvore *) lista->dir);
 			break;
 		case CHAMADA_FUNCAO:
 			chamadafuncao = no->dado.chamadafuncao;
@@ -334,11 +299,6 @@ void imprimir_pos_ordem(no_arvore *no) {
 			printf(" (");
 			imprimir_pos_ordem((no_arvore *) funcao->params);
 			printf(") FUNCAO");
-			break;
-		case LISTA_PARAMETRO:
-			listaparam = no->dado.listaparam;
-			imprimir_pos_ordem((no_arvore *) listaparam->esq);
-			imprimir_pos_ordem((no_arvore *) listaparam->dir);
 			break;
 		case PARAMETRO:
 			param = no->dado.param;
