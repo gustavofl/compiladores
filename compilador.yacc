@@ -142,36 +142,38 @@ tipo_retorno:
 	;
 
 bloco_composto:
-	'{' 										{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
-	stmts 										{}
-	'}'											{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
+	'{' criar_contexto
+	stmts
+	'}' fechar_contexto							{ $$ = $3; }
 	;
+
+criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
+
+fechar_contexto:								{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 
 bloco:
 	bloco_composto								{}
-	| 											{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); } 		
-		stmt 		
-												{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
+	| criar_contexto stmt fechar_contexto 		{}
 	;
 
 stmts:
-	stmts stmt 									{ /* imprimir_pos_ordem((no_arvore *) $2); */ }
-	|
+	stmts stmt 									{ $$ = (long) criar_no_t_lista((void*) $2, (void *) $1);}
+	|											{ $$ = (long) NULL; }
 	;
 
 stmt:
-	decl										{ imprimir_pos_ordem((no_arvore *) $1); }
+	decl										{ $$ = $1; }
 	| atribuicao								{
 													buscar_variavel_declarada(((no_arvore *) $1)->dado.attr->resultado->lexema);
-													imprimir_pos_ordem((no_arvore *) $1); 
+													$$ = $1;
 												}
-	| decl_array								{ imprimir_pos_ordem((no_arvore *) $1); }
+	| decl_array								{ $$ = $1; }
 	| atr_array									{}
 	| array 									{}
-	| expr 										{ imprimir_pos_ordem((no_arvore *) $1); }
-	| exprlogica								{ imprimir_pos_ordem((no_arvore *) $1); }
-	| leia 										{ imprimir_pos_ordem((no_arvore *) $1); }
-	| escreva 									{ imprimir_pos_ordem((no_arvore *) $1); }
+	| expr 										{ $$ = $1; }
+	| exprlogica								{ $$ = $1; }
+	| leia 										{ $$ = $1; }
+	| escreva 									{ $$ = $1; }
 	| se_senao 									{}
 	| enquanto 									{}
 	;

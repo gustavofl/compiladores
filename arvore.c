@@ -295,10 +295,12 @@ void imprimir_pos_ordem(no_arvore *no) {
 			break;
 		case FUNCAO:
 			funcao = no->dado.funcao;
-			printf("%s", ((simbolo *) funcao->nome)->lexema);
+			printf("\nFUNCAO %s", ((simbolo *) funcao->nome)->lexema);
 			printf(" (");
 			imprimir_pos_ordem((no_arvore *) funcao->params);
-			printf(") FUNCAO");
+			printf(") { \n");
+			imprimir_pos_ordem((no_arvore *) funcao->bloco);
+			printf("\n}\n");
 			break;
 		case PARAMETRO:
 			param = no->dado.param;
