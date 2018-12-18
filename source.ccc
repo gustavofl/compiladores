@@ -1,15 +1,16 @@
 programa {
+	funcao real z() {
+		inteiro m
+	}
+
 	funcao inicio () {
 		inteiro a,x,f=2,t,h,k=11,p=90
-		a(1,2,x+1)
 		x()
 		k=4
 		escreva(1,2.9,3)
-		leia(a)
-		inteiro a[1]
 	}
 
-	funcao inteiro a(inteiro b, real c){
+	funcao inteiro n(inteiro b, real c){
 
 	}
 }

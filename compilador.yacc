@@ -13,10 +13,13 @@ void yyerror(char *);
 no_arvore * buscar_variavel_declarada(char *lexema);
 no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
 void verificar_simbolo_duplicado(simbolo *s);
+void verificar_existencia_lexema(char *lexema);
 
 pilha_contexto *pilha;
 tabela_numero t_numeros;
 fila_buffer fila;
+tabela_lexemas_usados t_lexemas_usados;
+tabela t_funcoes;
 
 // variavel para auxiliar na declaracao multiplas de variavel
 // long tipo_attr_multiplas = 0;
@@ -110,7 +113,9 @@ funcao:
 	lista_parametros_vazio 
 	')' 
 	bloco_composto								{
+													verificar_existencia_lexema((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
+													inserir_simbolo(&t_funcoes, s);
 													$$ = (long) criar_no_funcao($2, s, (void *) $5, NULL);
 												}
 	;
@@ -287,12 +292,29 @@ no_arvore * buscar_ou_add_numero(char *lexema, int tipo) {
 }
 
 void verificar_simbolo_duplicado(simbolo *s) {
-	simbolo *novo = localizar_simbolo_contexto(topo_pilha(pilha), s->lexema);
+	simbolo *novo;
+
+	novo = localizar_simbolo_contexto(&t_funcoes, s->lexema);
+	if(novo != NULL){
+		yyerror("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.");
+		exit(0);
+	}
+
+	novo = localizar_simbolo_contexto(topo_pilha(pilha), s->lexema);
 	if(novo != NULL){
 		yyerror("Multiplas declaracoes de variavel.");
 		exit(0);
 	}
+
+	add_lexema_usado(&t_lexemas_usados, s->lexema);
 	inserir_simbolo(topo_pilha(pilha), s);
+}
+
+void verificar_existencia_lexema(char *lexema) {
+	if(buscar_lexema_usado(&t_lexemas_usados, lexema) != NULL) {
+		yyerror("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.");
+		exit(0);
+	}
 }
 
 void yyerror(char *s) {
