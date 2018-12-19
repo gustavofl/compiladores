@@ -30,7 +30,12 @@ tabela t_funcoes;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA UMINUS
+
+%nonassoc REDUCE
+%nonassoc '('
+%nonassoc SENAO
+%nonassoc '['
 
 %left OU
 %left E
@@ -39,11 +44,6 @@ tabela t_funcoes;
 %left NAO                                    // O portugol studio avalia o nao antes dos operadores logicos
 %left '+' '-'
 %left '*' '/' '%'
-
-%nonassoc REDUCE
-%nonassoc '('
-%nonassoc SENAO
-%nonassoc '['
 %%
 
 program:
@@ -170,8 +170,8 @@ stmt:
 	| decl_array								{ $$ = $1; }
 	| atr_array									{}
 	| array 									{}
-	| expr 										{ $$ = $1; }
-	| exprlogica								{ $$ = $1; }
+//	| expr 										{ $$ = $1; }
+//	| exprlogica								{ $$ = $1; }
 	| leia 										{ $$ = $1; }
 	| escreva 									{ $$ = $1; }
 	| se_senao 									{}
@@ -193,7 +193,7 @@ expr:
 	| expr '+' expr								{ $$ = (long) criar_no_expressao(SOMA, (void *) $3, (void *) $1); }
 	| expr '-' expr								{ $$ = (long) criar_no_expressao(SUB, (void *) $3, (void *) $1); }
 	| '(' expr ')'								{ $$ = $2; }
-//	| '-' expr 	%prec '*'						{}		// NAO ESTA FUNCIONANDO O %prec
+	| '-' expr 									{ $$ = (long) criar_no_expressao(UMINUS, (void *) $2, NULL); }
 	;
 
 
