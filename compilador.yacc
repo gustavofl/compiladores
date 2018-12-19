@@ -47,19 +47,19 @@ tabela t_funcoes;
 %%
 
 program:
-	PROGRAMA '{' 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
-	corpo_programa 								{}
-	'}'											{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
+	PROGRAMA '{' criar_contexto
+	corpo_programa
+	'}'	fechar_contexto							{ imprimir_pos_ordem((no_arvore *) $4); }
 	;
 
 corpo_programa:
-	corpo_programa componente_programa			{}
-	|
+	corpo_programa componente_programa			{ $$ = (long) criar_no_t_lista((void *) $2, (void *) $1); }
+	|											{ $$ = (long) NULL; }
 	;
 
 componente_programa:
-	decl										{ imprimir_pos_ordem((no_arvore *) $1); }
-	| funcao 									{ imprimir_pos_ordem((no_arvore *) $1); }
+	decl										{ $$ = $1; }
+	| funcao 									{ $$ = $1; }
 	;
 
 decl:

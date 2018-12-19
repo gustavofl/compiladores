@@ -10,6 +10,8 @@ programa {
 	}
 
 	funcao inteiro z(inteiro b, real c){
-
+		inteiro x
+		x=2
+		real klok
 	}
 }
