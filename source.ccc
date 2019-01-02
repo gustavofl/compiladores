@@ -1,4 +1,14 @@
 programa {
+	funcao inteiro z(inteiro b, real c){
+		inteiro x
+		x=2
+		real klok=1.1
+		enquanto(x<20) {
+			klok = klok * klok
+			x = x + 1
+		}
+	}
+
 	funcao inicio () {
 		inteiro a,x,f=2,t,h,k=11,p=90
 		a(1,2,x+1)
@@ -8,18 +18,8 @@ programa {
 		leia(a)
 		se(a>k)
 		se(a<f)
-			p = 11
+			a = 11
 		senao
 			a = 9
-	}
-
-	funcao inteiro z(inteiro b, real c){
-		inteiro x
-		x=2
-		real klok=1.1
-		enquanto(x<20) {
-			klok = klok * klok
-			x = x + 1
-		}
 	}
 }

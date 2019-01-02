@@ -248,7 +248,7 @@ chamar_funcao:
 	ID
 	'(' 
 	lista_argumentos_vazio 
-	')'											{ $$ = (long) criar_no_chamada_funcao((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
+	')'											{ $$ = (long) criar_no_chamada_funcao((void *) localizar_simbolo_contexto(&t_funcoes, (char *) $1), (void *) $3); }
 	;
 
 lista_argumentos_vazio:
