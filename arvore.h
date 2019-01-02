@@ -60,6 +60,12 @@ typedef struct t_decl_array {
 	void *valores_iniciais;
 } t_decl_array;
 
+typedef struct t_attr_array {
+	simbolo *nome;
+	void *indice;
+	void *valor;
+} t_attr_array;
+
 //Simula a superclasse abstrata 
 typedef union valor_sintatico {
 	t_expr *expr;
@@ -72,6 +78,7 @@ typedef union valor_sintatico {
 	t_funcao *funcao;
 	t_decl_array *declarray;
 	t_lista *lista;
+	t_attr_array *attrarray;
 } valor_sintatico;
 
 typedef struct no_arvore {
@@ -109,6 +116,9 @@ t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco);
 
 no_arvore * criar_no_decl_array(int tipo, simbolo *nome, void *tamanho, void *valores_iniciais);
 t_decl_array * criar_decl_array(int tipo, simbolo *nome, void *tamanho, void *valores_iniciais);
+
+no_arvore * criar_no_attr_array(simbolo *nome, void *indice, void *valor);
+t_attr_array * criar_attr_array(simbolo *nome, void *indice, void *valor);
 
 void imprimir_pos_ordem(no_arvore *no);
 

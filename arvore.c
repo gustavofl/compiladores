@@ -147,6 +147,21 @@ t_decl_array * criar_decl_array(int tipo, simbolo *nome, void *tamanho, void *va
 	return novo;
 }
 
+no_arvore * criar_no_attr_array(simbolo *nome, void *indice, void *valor){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = ATTR_ARRAY;
+	novo->dado.attrarray = criar_attr_array(nome, indice, valor);
+	return novo;
+}
+
+t_attr_array * criar_attr_array(simbolo *nome, void *indice, void *valor){
+	t_attr_array *novo = (t_attr_array *) malloc(sizeof(t_attr_array));
+	novo->nome = nome;
+	novo->indice = indice;
+	novo->valor = valor;
+	return novo;
+}
+
 
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
@@ -161,6 +176,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 	t_param *param;
 	t_decl_array *declarray;
 	t_lista *lista;
+	t_attr_array *attrarray;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -337,6 +353,13 @@ void imprimir_pos_ordem(no_arvore *no) {
 			imprimir_pos_ordem((no_arvore *) declarray->valores_iniciais);
 			printf("}");
 			break;
+		case ATTR_ARRAY:
+			attrarray = no->dado.attrarray;
+			printf("%s ", ((simbolo *) attrarray->nome)->lexema);
+			imprimir_pos_ordem((no_arvore *) attrarray->indice);
+			printf("INDEX ");
+			imprimir_pos_ordem((no_arvore *) attrarray->valor);
+			printf("=");
 	}
 
 	printf(" ");
