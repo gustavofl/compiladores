@@ -335,29 +335,19 @@ void imprimir_pos_ordem(no_arvore *no) {
 			break;
 		case DECL_ARRAY:
 			declarray = no->dado.declarray;
-			switch(declarray->tipo){
-				case INT:
-					printf("INT ");
-					break;
-				case REAL:
-					printf("REAL ");
-					break;
-				default:
-					printf("UNDEFINED ");
-					break;
-			} 
-			printf("%s", ((simbolo *) declarray->nome)->lexema);
-			printf(" [");
+			printf("%s ", ((simbolo *) declarray->nome)->lexema);
 			imprimir_pos_ordem((no_arvore *) declarray->tamanho);
-			printf("] <- { ");
+			printf("ARRAY_INDEX ");
+			printf("{ ");
 			imprimir_pos_ordem((no_arvore *) declarray->valores_iniciais);
-			printf("}");
+			printf("} ");
+			printf("=");
 			break;
 		case ATTR_ARRAY:
 			attrarray = no->dado.attrarray;
 			printf("%s ", ((simbolo *) attrarray->nome)->lexema);
 			imprimir_pos_ordem((no_arvore *) attrarray->indice);
-			printf("INDEX ");
+			printf("ARRAY_INDEX ");
 			imprimir_pos_ordem((no_arvore *) attrarray->valor);
 			printf("=");
 	}
