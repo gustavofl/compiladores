@@ -176,6 +176,21 @@ t_indice_array * criar_indice_array(simbolo *nome, void *indice){
 	return novo;
 }
 
+no_arvore * criar_no_if_else(void *condicao, void *bloco_if, void *bloco_else){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = IF_ELSE;
+	novo->dado.ifelse = criar_if_else(condicao, bloco_if, bloco_else);
+	return novo;
+}
+
+t_if_else * criar_if_else(void *condicao, void *bloco_if, void *bloco_else){
+	t_if_else *novo = (t_if_else *) malloc(sizeof(t_if_else));
+	novo->condicao = condicao;
+	novo->bloco_if = bloco_if;
+	novo->bloco_else = bloco_else;
+	return novo;
+}
+
 
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
@@ -192,6 +207,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 	t_lista *lista;
 	t_attr_array *attrarray;
 	t_indice_array *indicearray;
+	t_if_else *ifelse;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -371,6 +387,17 @@ void imprimir_pos_ordem(no_arvore *no) {
 			printf("%s ", ((simbolo *) indicearray->nome)->lexema);
 			imprimir_pos_ordem((no_arvore *) indicearray->indice);
 			printf("ARRAY_INDEX");
+			break;
+		case IF_ELSE:
+			ifelse = no->dado.ifelse;
+			printf("{ ");
+			imprimir_pos_ordem((no_arvore *) ifelse->bloco_if);
+			printf("} { ");
+			imprimir_pos_ordem((no_arvore *) ifelse->bloco_else);
+			printf("} ( ");
+			imprimir_pos_ordem((no_arvore *) ifelse->condicao);
+			printf(") IF_ELSE");
+			break;
 	}
 
 	printf(" ");

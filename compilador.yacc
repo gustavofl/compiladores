@@ -30,7 +30,7 @@ tabela t_funcoes;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE
 
 %left OU
 %left E
@@ -152,8 +152,8 @@ criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_p
 fechar_contexto:								{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 
 bloco:
-	bloco_composto								{}
-	| criar_contexto stmt fechar_contexto 		{}
+	bloco_composto								{ $$ = $1; }
+	| criar_contexto stmt fechar_contexto 		{ $$ = $2; }
 	;
 
 stmts:
@@ -173,7 +173,7 @@ stmt:
 	| exprlogica								{ $$ = $1; }
 	| leia 										{ $$ = $1; }
 	| escreva 									{ $$ = $1; }
-	| se_senao 									{}
+	| se_senao 									{ $$ = $1; }
 	| enquanto 									{}
 	;
 
@@ -262,8 +262,8 @@ lista_argumentos:
 	;
 
 se_senao:
-	SE '(' exprlogica ')' bloco %prec REDUCE	{}
-	| SE '(' exprlogica ')' bloco SENAO bloco	{}
+	SE '(' exprlogica ')' bloco %prec REDUCE	{ $$ = (long) criar_no_if_else((void *) $3, (void *) $5, NULL); }
+	| SE '(' exprlogica ')' bloco SENAO bloco	{ $$ = (long) criar_no_if_else((void *) $3, (void *) $5, (void *) $7); }
 	;
 
 enquanto:

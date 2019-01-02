@@ -71,6 +71,12 @@ typedef struct t_indice_array {
 	void *indice;
 } t_indice_array;
 
+typedef struct t_if_else {
+	void *condicao;
+	void *bloco_if;
+	void *bloco_else;
+} t_if_else;
+
 //Simula a superclasse abstrata 
 typedef union valor_sintatico {
 	t_expr *expr;
@@ -85,6 +91,7 @@ typedef union valor_sintatico {
 	t_lista *lista;
 	t_attr_array *attrarray;
 	t_indice_array *indicearray;
+	t_if_else *ifelse;
 } valor_sintatico;
 
 typedef struct no_arvore {
@@ -128,6 +135,9 @@ t_attr_array * criar_attr_array(simbolo *nome, void *indice, void *valor);
 
 no_arvore * criar_no_indice_array(simbolo *nome, void *indice);
 t_indice_array * criar_indice_array(simbolo *nome, void *indice);
+
+no_arvore * criar_no_if_else(void *condicao, void *bloco_if, void *bloco_else);
+t_if_else * criar_if_else(void *condicao, void *bloco_if, void *bloco_else);
 
 void imprimir_pos_ordem(no_arvore *no);
 
