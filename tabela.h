@@ -59,6 +59,18 @@ typedef struct fila_buffer{
 	buffer *primeiro;
 } fila_buffer;
 
+// usado para resolver conflitos de declaracoes de variaveis e funcoes
+typedef struct id_error {
+	int tipo;
+	simbolo *lexema;
+	// int linha;
+	struct id_error *proximo;
+} id_error;
+
+typedef struct fila_id_error {
+	id_error *primeiro;
+} fila_id_error;
+
 void add_lexema_usado(tabela_lexemas_usados *t, char *lexema);
 no_lexema_usado * buscar_lexema_usado(tabela_lexemas_usados *t, char *lexema);
 
@@ -79,6 +91,8 @@ pilha_contexto* empilhar_contexto(pilha_contexto *pilha, tabela *contexto);
 void desempilhar_contexto(pilha_contexto **pilha);
 tabela* topo_pilha(pilha_contexto *pilha);
 tabela * criar_contexto(tabela *pai);
+
+void add_id_error(int tipo, simbolo *lexema, /*int linha*/);
 
 void imprimir_contexto(tabela *t);
 void imprimir_tabela_numeros(tabela_numero *t);
