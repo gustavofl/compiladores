@@ -16,6 +16,10 @@ programa {
 	funcao inteiro z(inteiro b, real c){
 		inteiro x
 		x=2
-		real klok
+		real klok=1.1
+		enquanto(x<20) {
+			klok = klok * klok
+			x = x + 1
+		}
 	}
 }

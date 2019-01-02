@@ -30,7 +30,7 @@ tabela t_funcoes;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE WHILE
 
 %left OU
 %left E
@@ -174,7 +174,7 @@ stmt:
 	| leia 										{ $$ = $1; }
 	| escreva 									{ $$ = $1; }
 	| se_senao 									{ $$ = $1; }
-	| enquanto 									{}
+	| enquanto 									{ $$ = $1; }
 	;
 
 numero_inteiro:
@@ -267,7 +267,7 @@ se_senao:
 	;
 
 enquanto:
-	ENQUANTO '(' exprlogica ')' bloco			{}
+	ENQUANTO '(' exprlogica ')' bloco			{ $$ = (long) criar_no_while((void *) $3, (void *) $5); }
 	;
 %%
 

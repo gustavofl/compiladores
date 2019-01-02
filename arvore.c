@@ -191,6 +191,20 @@ t_if_else * criar_if_else(void *condicao, void *bloco_if, void *bloco_else){
 	return novo;
 }
 
+no_arvore * criar_no_while(void *condicao, void *bloco){
+	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
+	novo->tipo = WHILE;
+	novo->dado.twhile = criar_while(condicao, bloco);
+	return novo;
+}
+
+t_while * criar_while(void *condicao, void *bloco){
+	t_while *novo = (t_while *) malloc(sizeof(t_while));
+	novo->condicao = condicao;
+	novo->bloco = bloco;
+	return novo;
+}
+
 
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)
@@ -208,6 +222,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 	t_attr_array *attrarray;
 	t_indice_array *indicearray;
 	t_if_else *ifelse;
+	t_while *twhile;
 	switch(no->tipo){
 		case EXPR_LOGICA:
 			exprlogica = no->dado.exprlogica;
@@ -397,6 +412,14 @@ void imprimir_pos_ordem(no_arvore *no) {
 			printf("} ( ");
 			imprimir_pos_ordem((no_arvore *) ifelse->condicao);
 			printf(") IF_ELSE");
+			break;
+		case WHILE:
+			twhile = no->dado.twhile;
+			printf("{ ");
+			imprimir_pos_ordem((no_arvore *) twhile->bloco);
+			printf("} ( ");
+			imprimir_pos_ordem((no_arvore *) twhile->condicao);
+			printf(") WHILE");
 			break;
 	}
 
