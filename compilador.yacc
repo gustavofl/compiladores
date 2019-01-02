@@ -30,7 +30,7 @@ tabela t_funcoes;
 %token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
 
 // Constantes que são usadas para construir a arvore sintatica
-%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY
+%token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY
 
 %left OU
 %left E
@@ -169,7 +169,6 @@ stmt:
 												}
 	| decl_array								{ $$ = $1; }
 	| atr_array									{ $$ = $1; }
-	| array 									{}
 	| expr 										{ $$ = $1; }
 	| exprlogica								{ $$ = $1; }
 	| leia 										{ $$ = $1; }
@@ -186,6 +185,7 @@ expr:
 	numero_inteiro								{ $$ = $1; }
 	| ID 	%prec REDUCE						{ $$ = (long) buscar_variavel_declarada((char *) $1); }
 	| NUM_REAL									{ $$ = (long) buscar_ou_add_numero((char *) $1, REAL); }
+	| indice_array								{ $$ = $1; }
 	| chamar_funcao								{ $$ = $1; }
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
 	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
@@ -226,8 +226,8 @@ atr_array:
 	ID '[' expr ']' '=' expr					{ $$ = (long) criar_no_attr_array((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3, (void *) $6); }
 	;
 
-array:
-	ID '[' expr ']'								{}
+indice_array:
+	ID '[' expr ']'								{ $$ = (long) criar_no_indice_array((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
 	;
 
 leia:

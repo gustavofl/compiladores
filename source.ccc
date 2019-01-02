@@ -8,6 +8,7 @@ programa {
 		leia(a)
 		inteiro a[4] = {1,2,5,4}
 		a[3] = 4
+		t=a[1]
 	}
 
 	funcao inteiro z(inteiro b, real c){
