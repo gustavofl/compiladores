@@ -10,6 +10,8 @@
 int yylex(void);
 void yyerror(char *);
 
+void mostrar_erro_e_parar(char *s, char *var);
+
 no_arvore * buscar_variavel_declarada(char *lexema);
 no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
 void verificar_simbolo_duplicado(simbolo *s);
@@ -248,7 +250,14 @@ chamar_funcao:
 	ID
 	'(' 
 	lista_argumentos_vazio 
-	')'											{ $$ = (long) criar_no_chamada_funcao((void *) localizar_simbolo_contexto(&t_funcoes, (char *) $1), (void *) $3); }
+	')'											{
+													simbolo *s = localizar_simbolo_contexto(&t_funcoes, (char *) $1);
+
+													if(s == NULL)
+														mostrar_erro_e_parar("Nao existe uma funcao com este nome.", (char *) $1);
+
+													$$ = (long) criar_no_chamada_funcao((void *) localizar_simbolo_contexto(&t_funcoes, (char *) $1), (void *) $3);
+												}
 	;
 
 lista_argumentos_vazio:
@@ -273,10 +282,10 @@ enquanto:
 
 no_arvore * buscar_variavel_declarada(char *lexema) {
 	simbolo *s = localizar_simbolo(topo_pilha(pilha), lexema);
-	if(s == NULL){
-		yyerror("Variavel nao declarada.");
-		exit(0);
-	}
+
+	if(s == NULL)
+		mostrar_erro_e_parar("Variavel nao declarada.", lexema);
+
 	no_arvore *no = criar_no_expressao(ID, s, NULL);
 	no->dado.expr->tipo = s->tipo;
 	return no;
@@ -297,26 +306,25 @@ void verificar_simbolo_duplicado(simbolo *s) {
 	simbolo *novo;
 
 	novo = localizar_simbolo_contexto(&t_funcoes, s->lexema);
-	if(novo != NULL){
-		yyerror("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.");
-		exit(0);
-	}
+	if(novo != NULL)
+		mostrar_erro_e_parar("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.", s->lexema);
 
 	novo = localizar_simbolo_contexto(topo_pilha(pilha), s->lexema);
-	if(novo != NULL){
-		yyerror("Multiplas declaracoes de variavel.");
-		exit(0);
-	}
+	if(novo != NULL)
+		mostrar_erro_e_parar("Multiplas declaracoes de variavel.", s->lexema);
 
 	add_lexema_usado(&t_lexemas_usados, s->lexema);
 	inserir_simbolo(topo_pilha(pilha), s);
 }
 
 void verificar_existencia_lexema(char *lexema) {
-	if(buscar_lexema_usado(&t_lexemas_usados, lexema) != NULL) {
-		yyerror("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.");
-		exit(0);
-	}
+	if(buscar_lexema_usado(&t_lexemas_usados, lexema) != NULL)
+		mostrar_erro_e_parar("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.", lexema);
+}
+
+void mostrar_erro_e_parar(char *s, char *var) {
+	printf("%s [%s]\n", s, var);
+	exit(0);
 }
 
 void yyerror(char *s) {

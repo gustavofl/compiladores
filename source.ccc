@@ -11,8 +11,7 @@ programa {
 
 	funcao inicio () {
 		inteiro a,x,f=2,t,h,k=11,p=90
-		a(1,2,x+1)
-		x()
+		z()
 		k=4
 		escreva(1,2.9,3)
 		leia(a)
