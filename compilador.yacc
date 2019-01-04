@@ -16,6 +16,7 @@ simbolo * buscar_variavel_declarada(char *lexema);
 no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
 void verificar_simbolo_duplicado(simbolo *s);
 void verificar_existencia_lexema(char *lexema);
+void verificar_parametros(t_funcao *f, no_arvore *lista_args);
 
 pilha_contexto *pilha;
 tabela_numero t_numeros;
@@ -281,6 +282,8 @@ chamar_funcao:
 													if(f == NULL)
 														mostrar_erro_e_parar("Nao existe uma funcao com este nome.", (char *) $1);
 
+													verificar_parametros(f, (no_arvore *) $3);
+
 													$$ = (long) criar_no_chamada_funcao(f->nome, (void *) $3);
 												}
 	;
@@ -347,6 +350,28 @@ void verificar_simbolo_duplicado(simbolo *s) {
 void verificar_existencia_lexema(char *lexema) {
 	if(buscar_lexema_usado(&t_lexemas_usados, lexema) != NULL)
 		mostrar_erro_e_parar("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.", lexema);
+}
+
+void verificar_parametros(t_funcao *f, no_arvore *lista_args) {
+	no_arvore *no_params = f->params;
+	no_arvore *no_args = lista_args;
+
+	int qnt_params = 0;
+	while(no_params != NULL) {
+		no_params = no_params->dado.lista->esq;
+		qnt_params++;
+	}
+
+	int qnt_args = 0;
+	while(no_args != NULL) {
+		no_args = no_args->dado.lista->esq;
+		qnt_args++;
+	}
+
+	if(qnt_params != qnt_args){
+		printf("A funcao '%s' espera %d parametros, mas foram passados %d.\n", f->nome->lexema, qnt_params, qnt_args);
+		exit(0);
+	}
 }
 
 void mostrar_erro_e_parar(char *s, char *var) {

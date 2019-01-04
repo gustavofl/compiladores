@@ -50,7 +50,7 @@ typedef struct t_leia {
 typedef struct t_funcao {
 	int tipo;
 	simbolo *nome;
-	t_lista *params;
+	void *params;
 	void *bloco;
 } t_funcao;
 
