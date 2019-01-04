@@ -21,7 +21,7 @@ pilha_contexto *pilha;
 tabela_numero t_numeros;
 fila_buffer fila;
 tabela_lexemas_usados t_lexemas_usados;
-tabela t_funcoes;
+lista_funcoes l_funcoes;
 
 // variavel para auxiliar na declaracao multiplas de variavel
 // long tipo_attr_multiplas = 0;
@@ -117,8 +117,9 @@ funcao:
 	bloco_composto								{
 													verificar_existencia_lexema((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
-													inserir_simbolo(&t_funcoes, s);
-													$$ = (long) criar_no_funcao($2, s, (void *) $5, (void *) $7);
+													no_arvore *no = criar_no_funcao($2, s, (void *) $5, (void *) $7);
+													inserir_funcao(&l_funcoes, no->dado.funcao);
+													$$ = (long) no;
 												}
 	;
 
@@ -251,12 +252,12 @@ chamar_funcao:
 	'(' 
 	lista_argumentos_vazio 
 	')'											{
-													simbolo *s = localizar_simbolo_contexto(&t_funcoes, (char *) $1);
+													t_funcao *f = localizar_funcao(&l_funcoes, (char *) $1);
 
-													if(s == NULL)
+													if(f == NULL)
 														mostrar_erro_e_parar("Nao existe uma funcao com este nome.", (char *) $1);
 
-													$$ = (long) criar_no_chamada_funcao((void *) localizar_simbolo_contexto(&t_funcoes, (char *) $1), (void *) $3);
+													$$ = (long) criar_no_chamada_funcao(f->nome, (void *) $3);
 												}
 	;
 
@@ -305,8 +306,7 @@ no_arvore * buscar_ou_add_numero(char *lexema, int tipo) {
 void verificar_simbolo_duplicado(simbolo *s) {
 	simbolo *novo;
 
-	novo = localizar_simbolo_contexto(&t_funcoes, s->lexema);
-	if(novo != NULL)
+	if( localizar_funcao(&l_funcoes, s->lexema) != NULL )
 		mostrar_erro_e_parar("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.", s->lexema);
 
 	novo = localizar_simbolo_contexto(topo_pilha(pilha), s->lexema);

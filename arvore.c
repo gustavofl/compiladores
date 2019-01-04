@@ -205,6 +205,24 @@ t_while * criar_while(void *condicao, void *bloco){
 	return novo;
 }
 
+void inserir_funcao(lista_funcoes *l, t_funcao *funcao) {
+	no_lista_funcoes *no = (no_lista_funcoes *) malloc(sizeof(no_lista_funcoes));
+	no->funcao = funcao;
+	no->proximo = l->primeiro;
+	l->primeiro = no;
+}
+
+t_funcao * localizar_funcao(lista_funcoes *l, char *lexema) {
+	no_lista_funcoes *temp = l->primeiro;
+	while(temp != NULL) {
+		if(strcmp(temp->funcao->nome->lexema, lexema) == 0) {
+			return temp->funcao;
+		}
+		temp = temp->proximo;
+	}
+	return NULL;
+}
+
 
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)

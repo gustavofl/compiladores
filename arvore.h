@@ -106,6 +106,16 @@ typedef struct no_arvore {
 	//ponteiro para tabela de símbolos
 } no_arvore;
 
+// usado para armazenar as assinaturas das funcoes
+typedef struct no_lista_funcoes {
+	t_funcao *funcao;
+	struct no_lista_funcoes *proximo;
+} no_lista_funcoes;
+
+typedef struct lista_funcoes {
+	no_lista_funcoes *primeiro;
+} lista_funcoes;
+
 no_arvore * criar_no_expressao_logica(int op, void *dir, void *esq);
 t_expr_logica * criar_expressao_logica(int op, void *dir, void *esq);
 
@@ -147,6 +157,9 @@ t_if_else * criar_if_else(void *condicao, void *bloco_if, void *bloco_else);
 
 no_arvore * criar_no_while(void *condicao, void *bloco);
 t_while * criar_while(void *condicao, void *bloco);
+
+void inserir_funcao(lista_funcoes *l, t_funcao *funcao);
+t_funcao * localizar_funcao(lista_funcoes *l, char *lexema);
 
 void imprimir_pos_ordem(no_arvore *no);
 
