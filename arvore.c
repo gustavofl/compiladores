@@ -26,10 +26,28 @@ no_arvore * criar_no_expressao(int op, void *dir, void *esq) {
 }
 
 t_expr * criar_expressao(int op, void *dir, void *esq) {
+	int tipo_dir, tipo_esq;
+
 	t_expr * novo = (t_expr *) malloc(sizeof(t_expr));
 	novo->op = op;
 	novo->dir = dir;
 	novo->esq = esq;
+
+	// verificacao de tipo em operacoes binarias
+	if(op == MULT || op == DIV || op == SOMA || op == SUB || op == MOD) {
+		tipo_dir = ((no_arvore *) dir)->dado.expr->tipo;
+		tipo_esq = ((no_arvore *) esq)->dado.expr->tipo;
+
+		if(tipo_dir == tipo_esq)
+			novo->tipo = tipo_dir;
+		else
+			novo->tipo = REAL;
+	}
+	else if(op == CHAMADA_FUNCAO)
+		novo->tipo = ((no_arvore *) dir)->dado.chamadafuncao->tipo;
+	else if(op == INDICE_ARRAY)
+		novo->tipo = ((no_arvore *) dir)->dado.indicearray->tipo;
+
 	return novo;
 }
 
@@ -70,6 +88,7 @@ no_arvore * criar_no_chamada_funcao(simbolo *nome, void *args){
 
 t_chamada_funcao * criar_chamada_funcao(simbolo *nome, void *args){
 	t_chamada_funcao * novo = (t_chamada_funcao *) malloc(sizeof(t_chamada_funcao));
+	novo->tipo = nome->tipo;
 	novo->nome = nome;
 	novo->args = args;
 	return novo;
@@ -171,6 +190,7 @@ no_arvore * criar_no_indice_array(simbolo *nome, void *indice){
 
 t_indice_array * criar_indice_array(simbolo *nome, void *indice){
 	t_indice_array *novo = (t_indice_array *) malloc(sizeof(t_indice_array));
+	novo->tipo = nome->tipo;
 	novo->nome = nome;
 	novo->indice = indice;
 	return novo;
@@ -305,6 +325,7 @@ void imprimir_pos_ordem(no_arvore *no) {
 			break;
 		case EXPR:
 			expr = no->dado.expr;
+
 			switch(expr->op){
 				case NUMERO:
 					switch(((numero *) expr->dir)->tipo){
@@ -344,7 +365,14 @@ void imprimir_pos_ordem(no_arvore *no) {
 				case ID:
 					printf("%s", ((simbolo *) expr->dir)->lexema);
 					break;
+				case CHAMADA_FUNCAO:
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					break;
+				case INDICE_ARRAY:
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					break;
 			}
+
 			break;
 		case ATTR:
 			printf("%s ", no->dado.attr->resultado->lexema);
@@ -358,10 +386,12 @@ void imprimir_pos_ordem(no_arvore *no) {
 			break;
 		case CHAMADA_FUNCAO:
 			chamadafuncao = no->dado.chamadafuncao;
+
 			printf("%s", ((simbolo *) chamadafuncao->nome)->lexema);
 			printf(" (");
 			imprimir_pos_ordem((no_arvore *) chamadafuncao->args);
 			printf(") CHAMADA_FUNCAO");
+
 			break;
 		case ESCREVA:
 			escreva = no->dado.escreva;
@@ -417,9 +447,11 @@ void imprimir_pos_ordem(no_arvore *no) {
 			break;
 		case INDICE_ARRAY:
 			indicearray = no->dado.indicearray;
+
 			printf("%s ", ((simbolo *) indicearray->nome)->lexema);
 			imprimir_pos_ordem((no_arvore *) indicearray->indice);
 			printf("ARRAY_INDEX");
+
 			break;
 		case IF_ELSE:
 			ifelse = no->dado.ifelse;

@@ -12,7 +12,7 @@ void yyerror(char *);
 
 void mostrar_erro_e_parar(char *s, char *var);
 
-no_arvore * buscar_variavel_declarada(char *lexema);
+simbolo * buscar_variavel_declarada(char *lexema);
 no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
 void verificar_simbolo_duplicado(simbolo *s);
 void verificar_existencia_lexema(char *lexema);
@@ -167,8 +167,14 @@ stmts:
 stmt:
 	decl										{ $$ = $1; }
 	| atribuicao								{
-													buscar_variavel_declarada(((no_arvore *) $1)->dado.attr->resultado->lexema);
-													$$ = $1;
+													no_arvore *no = (no_arvore *) $1;
+													t_attr *attr = no->dado.attr;
+													attr->resultado = buscar_variavel_declarada(attr->resultado->lexema);
+													
+													// o portugol faz cast implicito de inteiro para real, e vice-versa
+													// logo nao existe a necessidade de verificar se o tipo da expressao eh compativel com o tipo da variavel
+
+													$$ = (long) no;
 												}
 	| decl_array								{ $$ = $1; }
 	| atr_array									{ $$ = $1; }
@@ -186,10 +192,15 @@ numero_inteiro:
 
 expr:
 	numero_inteiro								{ $$ = $1; }
-	| ID 	%prec REDUCE						{ $$ = (long) buscar_variavel_declarada((char *) $1); }
+	| ID 	%prec REDUCE						{
+													simbolo *s = buscar_variavel_declarada((char *) $1);
+													no_arvore *no = criar_no_expressao(ID, s, NULL);
+													no->dado.expr->tipo = s->tipo;
+													$$ = (long) no;
+												}
 	| NUM_REAL									{ $$ = (long) buscar_ou_add_numero((char *) $1, REAL); }
-	| indice_array								{ $$ = $1; }
-	| chamar_funcao								{ $$ = $1; }
+	| indice_array								{ $$ = (long) criar_no_expressao(INDICE_ARRAY, (void *) $1, NULL); }
+	| chamar_funcao								{ $$ = (long) criar_no_expressao(CHAMADA_FUNCAO, (void *) $1, NULL); }
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
 	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
 	| expr '%' expr								{ $$ = (long) criar_no_expressao(MOD, (void *) $3, (void *) $1); }
@@ -219,10 +230,19 @@ exprlogica:
 decl_array:
 	TIPO ID '[' numero_inteiro ']'										{
 																			simbolo *nome = criar_simbolo ((void *) $2, $1);
+																			verificar_simbolo_duplicado(nome);
 																			$$ = (long) criar_no_decl_array($1, nome, (void *) $4, NULL);
 																		}
-	|  TIPO ID '[' numero_inteiro ']' '=' '{' lista_argumentos '}'		{ $$ = (long) criar_no_decl_array($1, criar_simbolo ((void *) $2, $1), (void *) $4, (void *) $8); }	
-	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'						{ $$ = (long) criar_no_decl_array($1, criar_simbolo ((void *) $2, $1), NULL, (void *) $7); }
+	|  TIPO ID '[' numero_inteiro ']' '=' '{' lista_argumentos '}'		{
+																			simbolo *nome = criar_simbolo ((void *) $2, $1);
+																			verificar_simbolo_duplicado(nome);
+																			$$ = (long) criar_no_decl_array($1, nome, (void *) $4, (void *) $8);
+																		}
+	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'						{
+																			simbolo *nome = criar_simbolo ((void *) $2, $1);
+																			verificar_simbolo_duplicado(nome);
+																			$$ = (long) criar_no_decl_array($1, nome, NULL, (void *) $7);
+																		}
 	;
 
 atr_array:
@@ -230,7 +250,11 @@ atr_array:
 	;
 
 indice_array:
-	ID '[' expr ']'								{ $$ = (long) criar_no_indice_array((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
+	ID '[' expr ']'								{
+													no_arvore *no = criar_no_indice_array((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3);
+
+													$$ = (long) no;
+												}
 	;
 
 leia:
@@ -281,15 +305,18 @@ enquanto:
 	;
 %%
 
-no_arvore * buscar_variavel_declarada(char *lexema) {
+simbolo * buscar_variavel_declarada(char *lexema) {
 	simbolo *s = localizar_simbolo(topo_pilha(pilha), lexema);
 
 	if(s == NULL)
 		mostrar_erro_e_parar("Variavel nao declarada.", lexema);
 
+	return s;
+	/*
 	no_arvore *no = criar_no_expressao(ID, s, NULL);
 	no->dado.expr->tipo = s->tipo;
 	return no;
+	*/
 }
 
 no_arvore * buscar_ou_add_numero(char *lexema, int tipo) {

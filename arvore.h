@@ -34,6 +34,7 @@ typedef struct t_lista {
 } t_lista;
 
 typedef struct t_chamada_funcao {
+	int tipo;
 	simbolo *nome;
 	void *args;
 } t_chamada_funcao;
@@ -67,6 +68,7 @@ typedef struct t_attr_array {
 } t_attr_array;
 
 typedef struct t_indice_array {
+	int tipo;
 	simbolo *nome;
 	void *indice;
 } t_indice_array;

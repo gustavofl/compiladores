@@ -10,9 +10,13 @@ programa {
 	}
 
 	funcao inicio () {
-		inteiro a,x,f=2,t,h,k=11,p=90
+		inteiro a,x,f=2,t
+		real w,b=9.5,q,k
 		z()
-		k=4
+		k=a+w+2
+		inteiro j[4]
+		j[2] = 3
+		q = j[3]+z()
 		escreva(1,2.9,3)
 		leia(a)
 		se(a>k)
