@@ -347,6 +347,10 @@ void imprimir_pos_ordem(no_arvore *no) {
 					imprimir_pos_ordem((no_arvore *) expr->dir);
 					printf("-");
 					break;
+				case UMINUS:
+					imprimir_pos_ordem((no_arvore *) expr->dir);
+					printf("-");
+					break;
 				case MULT:
 					imprimir_pos_ordem((no_arvore *) expr->esq);
 					imprimir_pos_ordem((no_arvore *) expr->dir);
