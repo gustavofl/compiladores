@@ -130,11 +130,15 @@ lista_parametros_vazio:
 
 lista_parametros:
 	lista_parametros ',' TIPO ID 				{
-													no_arvore *no = criar_no_param($3, criar_simbolo ((void *) $4, $3));
+													simbolo *s = criar_simbolo((void *) $4, $3);
+													add_buffer(&fila, s);
+													no_arvore *no = criar_no_param($3, s);
 													$$ = (long) criar_no_t_lista(no, (void *) $1);
 												}
 	| TIPO ID 									{
-													no_arvore *no = criar_no_param($1, criar_simbolo ((void *) $2, $1));
+													simbolo *s = criar_simbolo((void *) $2, $1);
+													add_buffer(&fila, s);
+													no_arvore *no = criar_no_param($1, s);
 													$$ = (long) criar_no_t_lista(no, NULL);
 												}
 	;
@@ -145,14 +149,21 @@ tipo_retorno:
 	;
 
 bloco_composto:
-	'{' criar_contexto
+	'{' criar_contexto verificar_buffer
 	stmts
-	'}' fechar_contexto							{ $$ = $3; }
+	'}' fechar_contexto							{ $$ = $4; }
 	;
 
 criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
 
 fechar_contexto:								{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
+
+verificar_buffer:								{
+													while(fila.primeiro != NULL){
+														simbolo *param = pop_buffer(&fila);
+														inserir_simbolo(topo_pilha(pilha), param);
+													}
+												}
 
 bloco:
 	bloco_composto								{ $$ = $1; }

@@ -10,8 +10,8 @@ programa {
 	}
 
 	funcao inteiro o(inteiro a){
-		inteiro a=9
-		a = a + 9
+		inteiro v=9
+		v = v + a
 	}
 
 	funcao inicio () {
