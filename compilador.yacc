@@ -181,6 +181,7 @@ stmt:
 	| atr_array									{ $$ = $1; }
 //	| expr 										{ $$ = $1; }
 //	| exprlogica								{ $$ = $1; }
+	| chamar_funcao								{ $$ = (long) criar_no_expressao(CHAMADA_FUNCAO, (void *) $1, NULL); }
 	| leia 										{ $$ = $1; }
 	| escreva 									{ $$ = $1; }
 	| se_senao 									{ $$ = $1; }

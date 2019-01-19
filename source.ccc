@@ -15,6 +15,7 @@ programa {
 		inteiro j[4]
 		k=a+w+z(z(b,a),f+99-z(j[1],j[z(j[w*q-k],f)]))
 		j[2] = 3
+		-z(2,3)
 		q = j[3]+z(1,a)
 		escreva(1,2.9,3)
 		leia(a)
