@@ -3,16 +3,6 @@
 
 #include <string.h>
 
-typedef struct no_lexema_usado {
-	char *lexema;
-	struct no_lexema_usado *proximo;
-} no_lexema_usado;
-
-typedef struct tabela_lexemas_usados {
-	no_lexema_usado *primeiro;
-} tabela_lexemas_usados;
-
-
 typedef struct numero {
 	int tipo;
 	int valor_inteiro;
@@ -58,9 +48,6 @@ typedef struct buffer{
 typedef struct fila_buffer{
 	buffer *primeiro;
 } fila_buffer;
-
-void add_lexema_usado(tabela_lexemas_usados *t, char *lexema);
-no_lexema_usado * buscar_lexema_usado(tabela_lexemas_usados *t, char *lexema);
 
 void inserir_numero(tabela_numero *t, numero *n);
 numero * localizar_numero (tabela_numero *t, char *lexema, int tipo);

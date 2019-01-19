@@ -9,6 +9,11 @@ programa {
 		}
 	}
 
+	funcao inteiro o(inteiro a){
+		inteiro a=9
+		a = a + 9
+	}
+
 	funcao inicio () {
 		inteiro a,x,f=2,t
 		real w,b=9.5,q,k

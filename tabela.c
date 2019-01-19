@@ -3,30 +3,6 @@
 #include "tabela.h"
 #include "y.tab.h"
 
-void add_lexema_usado(tabela_lexemas_usados *t, char *lexema) {
-	no_lexema_usado *no = buscar_lexema_usado(t, lexema);
-
-	if(no == NULL) {
-		no = (no_lexema_usado *) malloc(sizeof(no_lexema_usado));
-		no->lexema = lexema;
-		no->proximo = t->primeiro;
-		t->primeiro = no;
-	}
-}
-
-no_lexema_usado * buscar_lexema_usado(tabela_lexemas_usados *t, char *lexema) {
-	no_lexema_usado *no = t->primeiro;
-
-	while(no != NULL) {
-		if(strcmp(no->lexema, lexema) == 0) {
-			return no;
-		}
-		no = no->proximo;
-	}
-
-	return NULL;
-}
-
 void inserir_numero(tabela_numero *t, numero *n) {
 	no_tabela_numero *no = (no_tabela_numero *) malloc(sizeof(no_tabela_numero));
 	no->dado = n;

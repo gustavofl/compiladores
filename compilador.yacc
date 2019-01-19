@@ -15,13 +15,12 @@ void mostrar_erro_e_parar(char *s, char *var);
 simbolo * buscar_variavel_declarada(char *lexema);
 no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
 void verificar_simbolo_duplicado(simbolo *s);
-void verificar_existencia_lexema(char *lexema);
+void verificar_existencia_funcao(char *lexema);
 void verificar_parametros(t_funcao *f, no_arvore *lista_args);
 
 pilha_contexto *pilha;
 tabela_numero t_numeros;
 fila_buffer fila;
-tabela_lexemas_usados t_lexemas_usados;
 lista_funcoes l_funcoes;
 
 // variavel para auxiliar na declaracao multiplas de variavel
@@ -116,7 +115,7 @@ funcao:
 	lista_parametros_vazio 
 	')' 
 	bloco_composto								{
-													verificar_existencia_lexema((char *) $3);
+													verificar_existencia_funcao((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
 													no_arvore *no = criar_no_funcao($2, s, (void *) $5, (void *) $7);
 													inserir_funcao(&l_funcoes, no->dado.funcao);
@@ -179,8 +178,6 @@ stmt:
 												}
 	| decl_array								{ $$ = $1; }
 	| atr_array									{ $$ = $1; }
-//	| expr 										{ $$ = $1; }
-//	| exprlogica								{ $$ = $1; }
 	| chamar_funcao								{ $$ = (long) criar_no_expressao(CHAMADA_FUNCAO, (void *) $1, NULL); }
 	| leia 										{ $$ = $1; }
 	| escreva 									{ $$ = $1; }
@@ -344,13 +341,12 @@ void verificar_simbolo_duplicado(simbolo *s) {
 	if(novo != NULL)
 		mostrar_erro_e_parar("Multiplas declaracoes de variavel.", s->lexema);
 
-	add_lexema_usado(&t_lexemas_usados, s->lexema);
 	inserir_simbolo(topo_pilha(pilha), s);
 }
 
-void verificar_existencia_lexema(char *lexema) {
-	if(buscar_lexema_usado(&t_lexemas_usados, lexema) != NULL)
-		mostrar_erro_e_parar("Nao e permitido declarar variaveis com o mesmo nome de uma funcao.", lexema);
+void verificar_existencia_funcao(char *lexema) {
+	if( localizar_funcao(&l_funcoes, lexema) != NULL )
+		mostrar_erro_e_parar("Ja existe uma funcao com esse nome.", lexema);
 }
 
 void verificar_parametros(t_funcao *f, no_arvore *lista_args) {
