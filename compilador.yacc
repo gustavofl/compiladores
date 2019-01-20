@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "tabela.h"
 #include "arvore.h"
+#include "codigo_intermediario.h"
 
 int yylex(void);
 void yyerror(char *);
@@ -23,6 +24,8 @@ tabela_numero t_numeros;
 fila_buffer fila;
 lista_funcoes l_funcoes;
 
+fila_instrucoes codigo_intermediario;
+
 // variavel para auxiliar na declaracao multiplas de variavel
 // long tipo_attr_multiplas = 0;
 
@@ -33,6 +36,9 @@ lista_funcoes l_funcoes;
 
 // Constantes que são usadas para construir a arvore sintatica
 %token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE WHILE UMINUS
+
+// Constantes que serão usadas na geração de código intermediário
+%token CAST_INT CAST_REAL
 
 %nonassoc REDUCE
 %nonassoc '('
@@ -51,7 +57,7 @@ lista_funcoes l_funcoes;
 program:
 	PROGRAMA '{' criar_contexto
 	corpo_programa
-	'}'	fechar_contexto							{ imprimir_pos_ordem((no_arvore *) $4); }
+	'}'	fechar_contexto							{ /* gerar_codigo(&codigo_intermediario, (no_arvore *) $4); */ }
 	;
 
 corpo_programa:
@@ -184,6 +190,9 @@ stmt:
 													
 													// o portugol faz cast implicito de inteiro para real, e vice-versa
 													// logo nao existe a necessidade de verificar se o tipo da expressao eh compativel com o tipo da variavel
+
+													gerar_codigo(&codigo_intermediario, no);
+													imprimir_codigo(&codigo_intermediario);
 
 													$$ = (long) no;
 												}

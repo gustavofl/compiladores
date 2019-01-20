@@ -1,33 +1,6 @@
 programa {
-	funcao inteiro z(inteiro b, real c){
-		inteiro x
-		x=2
-		real klok=1.1
-		enquanto(x<20) {
-			klok = klok * klok
-			x = x + 1
-		}
-	}
-
-	funcao inteiro o(inteiro a){
-		inteiro v=9
-		v = v + a
-	}
-
 	funcao inicio () {
-		inteiro a,x,f=2,t
-		real w,b=9.5,q,k
-		inteiro j[4]
-		k=a+w+z(z(b,a),f+99-z(j[1],j[z(j[w*q-k],f)]))
-		j[2] = 3
-		-z(2,3)
-		q = j[3]+z(1,a)
-		escreva(1,2.9,3)
-		leia(a)
-		se(a>k)
-		se(a<f)
-			a = 11
-		senao
-			a = 9
+		inteiro a
+		a = 1.1 + 2
 	}
 }
