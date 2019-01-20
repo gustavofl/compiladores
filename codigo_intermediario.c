@@ -67,11 +67,11 @@ simbolo * gerar_codigo_conversao_tipo(fila_instrucoes *fila, int tipo, simbolo *
 simbolo * gerar_codigo_expr_simples(fila_instrucoes *fila, int opcode, t_expr *expr) {
 	instrucao *i;
 
-	simbolo *first = gerar_codigo_expr(fila, (no_arvore *) expr->dir);
+	simbolo *first = gerar_codigo_expr(fila, (no_arvore *) expr->esq);
 	if( first->tipo != expr->tipo )
 		first = gerar_codigo_conversao_tipo(fila, expr->tipo, first);
 
-	simbolo *second = gerar_codigo_expr(fila, (no_arvore *) expr->esq);
+	simbolo *second = gerar_codigo_expr(fila, (no_arvore *) expr->dir);
 	if( second->tipo != expr->tipo ){
 		second = gerar_codigo_conversao_tipo(fila, expr->tipo, second);
 	}
@@ -104,36 +104,29 @@ simbolo * gerar_codigo_expr(fila_instrucoes *fila, no_arvore *no) {
 		case SOMA:
 			result = gerar_codigo_expr_simples(fila, SOMA, expr);
 			break;
-		// case SUB:
-		// 	imprimir_pos_ordem((no_arvore *) expr->esq);
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	printf("-");
-		// 	break;
-		// case UMINUS:
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	printf("-");
-		// 	break;
-		// case MULT:
-		// 	imprimir_pos_ordem((no_arvore *) expr->esq);
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	printf("*");
-		// 	break;
-		// case DIV:
-		// 	imprimir_pos_ordem((no_arvore *) expr->esq);
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	printf("/");
-		// 	break;
-		// case MOD:
-		// 	imprimir_pos_ordem((no_arvore *) expr->esq);
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	printf("%c",'%');
-		// 	break;
-		// case CHAMADA_FUNCAO:
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	break;
-		// case INDICE_ARRAY:
-		// 	imprimir_pos_ordem((no_arvore *) expr->dir);
-		// 	break;
+		case SUB:
+			result = gerar_codigo_expr_simples(fila, SUB, expr);
+			break;
+		case MULT:
+			result = gerar_codigo_expr_simples(fila, MULT, expr);
+			break;
+		case DIV:
+			result = gerar_codigo_expr_simples(fila, DIV, expr);
+			break;
+		case UMINUS:
+			first = gerar_codigo_expr(fila, expr->dir);
+			result = gerar_simbolo_temp(expr->tipo);
+			i = gerar_instrucao(UMINUS, result, first, NULL);
+			break;
+		case MOD:
+			result = gerar_codigo_expr_simples(fila, MOD, expr);
+			break;
+		case CHAMADA_FUNCAO:
+			result = gerar_codigo_chamada_funcao(fila, (no_arvore *) expr->dir);
+			break;
+		case INDICE_ARRAY:
+			result = gerar_codigo_indice_array(fila, (no_arvore *) expr->dir);
+			break;
 	}
 
 	if(i != NULL)
@@ -158,6 +151,14 @@ simbolo * gerar_codigo_attr(fila_instrucoes *fila, no_arvore *no) {
 	add_instrucao(fila, i);
 
 	return result;
+}
+
+simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no){
+	return NULL;
+}
+
+simbolo * gerar_codigo_indice_array(fila_instrucoes *fila, no_arvore *no){
+	return NULL;
 }
 
 void imprimir_codigo(fila_instrucoes *fila) {
@@ -186,6 +187,21 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case SOMA:
 				printf("(soma,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
 				break;
+			case SUB:
+				printf("(sub,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case MULT:
+				printf("(mult,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case DIV:
+				printf("(div,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case UMINUS:
+				printf("(uminus,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				break;
+			case MOD:
+				printf("(mod,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
 		}
 
 		no = no->proximo;
@@ -202,6 +218,10 @@ void gerar_codigo(fila_instrucoes *fila, no_arvore *no) {
 			break;
 		case EXPR:
 			gerar_codigo_expr(fila, no);
+			break;
+		case LISTA:
+			gerar_codigo(fila, (no_arvore *)((t_lista *) no->dado.lista)->esq);
+			gerar_codigo(fila, (no_arvore *)((t_lista *) no->dado.lista)->dir);
 			break;
 		// case EXPR_LOGICA:
 		// 	exprlogica = no->dado.exprlogica;
@@ -263,11 +283,6 @@ void gerar_codigo(fila_instrucoes *fila, no_arvore *no) {
 		// 			printf("!=");
 		// 			break;
 		// 	}
-		// 	break;
-		// case LISTA:
-		// 	lista = no->dado.lista;
-		// 	imprimir_pos_ordem((no_arvore *) lista->esq);
-		// 	imprimir_pos_ordem((no_arvore *) lista->dir);
 		// 	break;
 		// case CHAMADA_FUNCAO:
 		// 	chamadafuncao = no->dado.chamadafuncao;

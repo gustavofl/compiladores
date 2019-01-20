@@ -57,7 +57,7 @@ fila_instrucoes codigo_intermediario;
 program:
 	PROGRAMA '{' criar_contexto
 	corpo_programa
-	'}'	fechar_contexto							{ /* gerar_codigo(&codigo_intermediario, (no_arvore *) $4); */ }
+	'}'	fechar_contexto							{ /* imprimir_pos_ordem((no_arvore *) $4); */ }
 	;
 
 corpo_programa:
@@ -157,7 +157,12 @@ tipo_retorno:
 bloco_composto:
 	'{' criar_contexto verificar_buffer
 	stmts
-	'}' fechar_contexto							{ $$ = $4; }
+	'}' fechar_contexto							{
+													gerar_codigo(&codigo_intermediario, (no_arvore *) $4);
+													imprimir_codigo(&codigo_intermediario);
+
+													$$ = $4;
+												}
 	;
 
 criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
@@ -190,9 +195,6 @@ stmt:
 													
 													// o portugol faz cast implicito de inteiro para real, e vice-versa
 													// logo nao existe a necessidade de verificar se o tipo da expressao eh compativel com o tipo da variavel
-
-													gerar_codigo(&codigo_intermediario, no);
-													imprimir_codigo(&codigo_intermediario);
 
 													$$ = (long) no;
 												}
