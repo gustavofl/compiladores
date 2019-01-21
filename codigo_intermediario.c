@@ -101,25 +101,13 @@ simbolo * gerar_codigo_expr(fila_instrucoes *fila, no_arvore *no) {
 			break;
 		case ID:
 			return (simbolo *) expr->dir;
-		case SOMA:
+		case SOMA: case SUB: case MULT: case DIV: case MOD:
 			result = gerar_codigo_expr_simples(fila, SOMA, expr);
-			break;
-		case SUB:
-			result = gerar_codigo_expr_simples(fila, SUB, expr);
-			break;
-		case MULT:
-			result = gerar_codigo_expr_simples(fila, MULT, expr);
-			break;
-		case DIV:
-			result = gerar_codigo_expr_simples(fila, DIV, expr);
 			break;
 		case UMINUS:
 			first = gerar_codigo_expr(fila, expr->dir);
 			result = gerar_simbolo_temp(expr->tipo);
 			i = gerar_instrucao(UMINUS, result, first, NULL);
-			break;
-		case MOD:
-			result = gerar_codigo_expr_simples(fila, MOD, expr);
 			break;
 		case CHAMADA_FUNCAO:
 			result = gerar_codigo_chamada_funcao(fila, (no_arvore *) expr->dir);
@@ -213,75 +201,104 @@ simbolo * gerar_codigo_expr_logica(fila_instrucoes *fila, no_arvore *no) {
 void imprimir_codigo(fila_instrucoes *fila) {
 	no_instrucao *no = fila->primeiro;
 	instrucao *i;
+	char *opcode, *second, *first;
+	char buffer[256];
 
 	while(no != NULL) {
 		i = no->inst;
 
 		switch(i->opcode) {
 			case ATTR:
-				printf("(attr,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				opcode = "attr";
 				break;
 			case NUM_INT:
-				printf("(num_int,%s,%d,-)\n", i->result->lexema, ((numero *)i->first)->valor_inteiro);
+				opcode = "num_int";
 				break;
 			case NUM_REAL:
-				printf("(num_real,%s,%.2f,-)\n", i->result->lexema, ((numero *)i->first)->valor_real);
+				opcode = "num_real";
 				break;
 			case CAST_INT:
-				printf("(cast_int,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				opcode = "cast_int";
 				break;
 			case CAST_REAL:
-				printf("(cast_real,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				opcode = "cast_real";
 				break;
 			case SOMA:
-				printf("(soma,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "soma";
 				break;
 			case SUB:
-				printf("(sub,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "sub";
 				break;
 			case MULT:
-				printf("(mult,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "mult";
 				break;
 			case DIV:
-				printf("(div,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "div";
 				break;
 			case UMINUS:
-				printf("(uminus,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				opcode = "uminus";
 				break;
 			case MOD:
-				printf("(mod,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "mod";
 				break;
 			case BOOLEANO:
-				printf("(booleano,%s,%ld,-)\n", i->result->lexema, (long) i->first);
+				opcode = "booleano";
 				break;
 			case E:
-				printf("(e,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "e";
 				break;
 			case OU:
-				printf("(ou,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "ou";
 				break;
 			case MAIOR:
-				printf("(maior,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "maior";
 				break;
 			case MAIOR_IGUAL:
-				printf("(maior_igual,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "maior_igual";
 				break;
 			case MENOR:
-				printf("(menor,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "menor";
 				break;
 			case MENOR_IGUAL:
-				printf("(menor_igual,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "menor_igual";
 				break;
 			case IGUAL_COMP:
-				printf("(igual_comp,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "igual_comp";
 				break;
 			case DIFERENTE:
-				printf("(diferente,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				opcode = "diferente";
 				break;
 			case NAO:
-				printf("(nao,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				opcode = "nao";
 				break;
 		}
+
+		// PRIMEIRO OPERANDO
+		if(i->opcode == BOOLEANO) {
+			if (((long)i->first) == FALSO)
+				first = "falso";
+			else
+				first = "verdadeiro";
+		}
+		else if(i->opcode == NUM_INT) {
+			sprintf(buffer, "%d", ((numero *)i->first)->valor_inteiro);
+			first = strdup(buffer);
+		}
+		else if(i->opcode == NUM_REAL) {
+			sprintf(buffer, "%.2f", ((numero *)i->first)->valor_real);
+			first = strdup(buffer);
+		}
+		else {
+			first = ((simbolo *)i->first)->lexema;
+		}
+
+		// SEGUNDO OPERANDO
+		if(i->second != NULL)
+			second = ((simbolo *)i->second)->lexema;
+		else
+			second = "-";
+
+		printf("(%s,%s,%s,%s)\n", opcode, i->result->lexema, first, second);
 
 		no = no->proximo;
 	}
