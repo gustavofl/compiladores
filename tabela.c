@@ -39,9 +39,9 @@ int numeros_iguais(numero *n1, numero *n2) {
 
 	if(n1 == NULL || n2 == NULL)
 		resultado = 0;
-	if(n1->tipo != n2->tipo)
+	else if(n1->tipo != n2->tipo)
 		resultado = 0;
-	if(n1->tipo == INT)
+	else if(n1->tipo == INT)
 		resultado = n1->valor_inteiro == n2->valor_inteiro;
 	else if(n1->tipo == REAL)
 		resultado = n1->valor_real == n2->valor_real;
