@@ -190,7 +190,7 @@ void gerar_codigo_decl_array(tabela_numero *t_numeros, fila_instrucoes *fila, no
 		no_arvore *num = buscar_ou_add_numero(t_numeros, strdup(buffer), INT);
 		indice = gerar_codigo_expr(fila, num);
 		
-		expr = gerar_codigo_expr(fila, no_valor);
+		expr = gerar_codigo_expr(fila, no_valor->dado.lista->dir);
 
 		i = gerar_instrucao(ATTR_ARRAY, nome, indice, expr);
 		add_instrucao(fila, i);
