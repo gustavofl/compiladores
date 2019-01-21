@@ -161,6 +161,55 @@ simbolo * gerar_codigo_indice_array(fila_instrucoes *fila, no_arvore *no){
 	return NULL;
 }
 
+simbolo * gerar_codigo_expr_logica(fila_instrucoes *fila, no_arvore *no) {
+	simbolo *result;
+	void *first, *second;
+	instrucao *i = NULL;
+
+	t_expr_logica *exprlogica = no->dado.exprlogica;
+	switch(exprlogica->op){
+		case BOOLEANO:
+			result = gerar_simbolo_temp(BOOLEANO);
+			first = exprlogica->dir;
+			i = gerar_instrucao(BOOLEANO, result, first, NULL);
+			break;
+		case OU: case E:
+			first = gerar_codigo_expr_logica(fila, (no_arvore *) exprlogica->esq);
+			second = gerar_codigo_expr_logica(fila, (no_arvore *) exprlogica->dir);
+			result = gerar_simbolo_temp(BOOLEANO);
+			i = gerar_instrucao(exprlogica->op, result, first, second);
+			break;
+		case MAIOR: case MENOR: case MAIOR_IGUAL: case MENOR_IGUAL:
+			first = gerar_codigo_expr(fila, (no_arvore *) exprlogica->esq);
+			second = gerar_codigo_expr(fila, (no_arvore *) exprlogica->dir);
+			result = gerar_simbolo_temp(BOOLEANO);
+			i = gerar_instrucao(exprlogica->op, result, first, second);
+			break;
+		case IGUAL_COMP: case DIFERENTE:
+			if(((no_arvore *) exprlogica->esq)->tipo == EXPR) {
+				first = gerar_codigo_expr(fila, (no_arvore *) exprlogica->esq);
+				second = gerar_codigo_expr(fila, (no_arvore *) exprlogica->dir);
+				result = gerar_simbolo_temp(BOOLEANO);
+				i = gerar_instrucao(exprlogica->op, result, first, second);
+			} else {
+				first = gerar_codigo_expr_logica(fila, (no_arvore *) exprlogica->esq);
+				second = gerar_codigo_expr_logica(fila, (no_arvore *) exprlogica->dir);
+				result = gerar_simbolo_temp(BOOLEANO);
+				i = gerar_instrucao(exprlogica->op, result, first, second);
+			}
+			break;
+		case NAO:
+			first = gerar_codigo_expr_logica(fila, exprlogica->dir);
+			result = gerar_simbolo_temp(BOOLEANO);
+			i = gerar_instrucao(NAO, result, first, NULL);
+			break;
+	}
+
+	add_instrucao(fila, i);
+
+	return result;
+}
+
 void imprimir_codigo(fila_instrucoes *fila) {
 	no_instrucao *no = fila->primeiro;
 	instrucao *i;
@@ -202,6 +251,36 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case MOD:
 				printf("(mod,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
 				break;
+			case BOOLEANO:
+				printf("(booleano,%s,%ld,-)\n", i->result->lexema, (long) i->first);
+				break;
+			case E:
+				printf("(e,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case OU:
+				printf("(ou,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case MAIOR:
+				printf("(maior,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case MAIOR_IGUAL:
+				printf("(maior_igual,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case MENOR:
+				printf("(menor,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case MENOR_IGUAL:
+				printf("(menor_igual,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case IGUAL_COMP:
+				printf("(igual_comp,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case DIFERENTE:
+				printf("(diferente,%s,%s,%s)\n", i->result->lexema, ((simbolo *)i->first)->lexema, ((simbolo *)i->second)->lexema);
+				break;
+			case NAO:
+				printf("(nao,%s,%s,-)\n", i->result->lexema, ((simbolo *)i->first)->lexema);
+				break;
 		}
 
 		no = no->proximo;
@@ -223,67 +302,13 @@ void gerar_codigo(fila_instrucoes *fila, no_arvore *no) {
 			gerar_codigo(fila, (no_arvore *)((t_lista *) no->dado.lista)->esq);
 			gerar_codigo(fila, (no_arvore *)((t_lista *) no->dado.lista)->dir);
 			break;
-		// case EXPR_LOGICA:
-		// 	exprlogica = no->dado.exprlogica;
-		// 	switch(exprlogica->op){
-		// 		case BOOLEANO:
-		// 			switch((long) exprlogica->dir){
-		// 				case 282:
-		// 					printf("verdadeiro");
-		// 					break;
-		// 				case 283:
-		// 					printf("falso");
-		// 					break;
-		// 				default:
-		// 					printf("%ld", (long) exprlogica->dir);
-		// 				}
-		// 			break;
-		// 		case OU:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("OU");
-		// 			break;
-		// 		case E:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("E");
-		// 			break;
-		// 		case NAO:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("NAO");
-		// 			break;
-		// 		case MAIOR:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf(">");
-		// 			break;
-		// 		case MENOR:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("<");
-		// 			break;
-		// 		case MAIOR_IGUAL:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf(">=");
-		// 			break;
-		// 		case MENOR_IGUAL:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("<=");
-		// 			break;
-		// 		case IGUAL_COMP:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("==");
-		// 			break;
-		// 		case DIFERENTE:
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->esq);
-		// 			imprimir_pos_ordem((no_arvore *) exprlogica->dir);
-		// 			printf("!=");
-		// 			break;
-		// 	}
-		// 	break;
+		case EXPR_LOGICA:
+			gerar_codigo_expr_logica(fila, no);
+			break;
+		case IF_ELSE:
+			// testando somente a condicao
+			gerar_codigo_expr_logica(fila, (no_arvore *)((t_if_else *) no->dado.ifelse)->condicao);
+			break;
 		// case CHAMADA_FUNCAO:
 		// 	chamadafuncao = no->dado.chamadafuncao;
 

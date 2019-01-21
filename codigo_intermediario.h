@@ -35,6 +35,7 @@ simbolo * gerar_codigo_expr(fila_instrucoes *fila, no_arvore *no);
 simbolo * gerar_codigo_attr(fila_instrucoes *fila, no_arvore *no);
 simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no);
 simbolo * gerar_codigo_indice_array(fila_instrucoes *fila, no_arvore *no);
+simbolo * gerar_codigo_expr_logica(fila_instrucoes *fila, no_arvore *no);
 
 void imprimir_codigo(fila_instrucoes *fila);
 

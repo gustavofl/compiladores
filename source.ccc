@@ -7,5 +7,7 @@ programa {
 		a = a / 10.0
 		a = -a
 		a = a % (2+3)
+		se(a>1 e a<2 ou falso e a<9 ou verdadeiro e a<=99 ou a>=1 e a==2 ou a!=9 e nao a==3)
+			a=2
 	}
 }
