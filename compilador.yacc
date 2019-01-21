@@ -157,7 +157,7 @@ bloco_composto:
 	'{' criar_contexto verificar_buffer
 	stmts
 	'}' fechar_contexto							{
-													gerar_codigo(&codigo_intermediario, (no_arvore *) $4);
+													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $4);
 													imprimir_codigo(&codigo_intermediario);
 
 													$$ = $4;

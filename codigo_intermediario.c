@@ -123,7 +123,7 @@ simbolo * gerar_codigo_expr(fila_instrucoes *fila, no_arvore *no) {
 	return result;
 }
 
-simbolo * gerar_codigo_attr(fila_instrucoes *fila, no_arvore *no) {
+void gerar_codigo_attr(fila_instrucoes *fila, no_arvore *no) {
 	simbolo *result;
 	void *first;
 	instrucao *i;
@@ -137,16 +137,67 @@ simbolo * gerar_codigo_attr(fila_instrucoes *fila, no_arvore *no) {
 
 	i = gerar_instrucao(ATTR, result, first, NULL);
 	add_instrucao(fila, i);
-
-	return result;
 }
 
 simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no){
 	return NULL;
 }
 
-simbolo * gerar_codigo_indice_array(fila_instrucoes *fila, no_arvore *no){
-	return NULL;
+simbolo * gerar_codigo_indice_array(fila_instrucoes *fila, no_arvore *no) {
+	simbolo *result;
+	void *first, *second;
+	instrucao *i = NULL;
+
+	t_indice_array *indicearray = no->dado.indicearray;
+	first = indicearray->nome;
+	second = gerar_codigo_expr(fila, indicearray->indice);
+	result = gerar_simbolo_temp(indicearray->tipo);
+	i = gerar_instrucao(INDICE_ARRAY, result, first, second);
+
+	add_instrucao(fila, i);
+
+	return result;
+}
+
+void gerar_codigo_attr_array(fila_instrucoes *fila, no_arvore *no){
+	simbolo *nome;
+	void *indice, *expr;
+	instrucao *i = NULL;
+
+	t_attr_array *attrarray = no->dado.attrarray;
+	nome = attrarray->nome;
+	indice = gerar_codigo_expr(fila, attrarray->indice);
+	expr = gerar_codigo_expr(fila, attrarray->valor);
+	i = gerar_instrucao(ATTR_ARRAY, nome, indice, expr);
+
+	add_instrucao(fila, i);
+}
+
+void gerar_codigo_decl_array(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no) {
+	simbolo *nome;
+	void *indice, *expr;
+	instrucao *i = NULL;
+	t_decl_array *declarray;
+
+	no_arvore *no_valor = no->dado.declarray->valores_iniciais;
+	int count = 0;
+	while(no_valor != NULL) {
+		declarray = no->dado.declarray;
+		nome = declarray->nome;
+
+		char buffer[256];
+		sprintf(buffer, "%d", count);
+		no_arvore *num = buscar_ou_add_numero(t_numeros, strdup(buffer), INT);
+		indice = gerar_codigo_expr(fila, num);
+		
+		expr = gerar_codigo_expr(fila, no_valor);
+
+		i = gerar_instrucao(ATTR_ARRAY, nome, indice, expr);
+		add_instrucao(fila, i);
+
+		no_valor = no_valor->dado.lista->esq;
+		count++;
+	}
 }
 
 simbolo * gerar_codigo_expr_logica(fila_instrucoes *fila, no_arvore *no) {
@@ -271,6 +322,15 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case NAO:
 				opcode = "nao";
 				break;
+			case INDICE_ARRAY:
+				opcode = "indice_array";
+				break;
+			case ATTR_ARRAY:
+				opcode = "attr_array";
+				break;
+			default:
+				opcode = "undefined";
+				break;
 		}
 
 		// PRIMEIRO OPERANDO
@@ -304,7 +364,7 @@ void imprimir_codigo(fila_instrucoes *fila) {
 	}
 }
 
-void gerar_codigo(fila_instrucoes *fila, no_arvore *no) {
+void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no) {
 	if(no == NULL)
 		return;
 
@@ -316,11 +376,17 @@ void gerar_codigo(fila_instrucoes *fila, no_arvore *no) {
 			gerar_codigo_expr(fila, no);
 			break;
 		case LISTA:
-			gerar_codigo(fila, (no_arvore *)((t_lista *) no->dado.lista)->esq);
-			gerar_codigo(fila, (no_arvore *)((t_lista *) no->dado.lista)->dir);
+			gerar_codigo(t_numeros, fila, (no_arvore *)((t_lista *) no->dado.lista)->esq);
+			gerar_codigo(t_numeros, fila, (no_arvore *)((t_lista *) no->dado.lista)->dir);
 			break;
 		case EXPR_LOGICA:
 			gerar_codigo_expr_logica(fila, no);
+			break;
+		case ATTR_ARRAY:
+			gerar_codigo_attr_array(fila, no);
+			break;
+		case DECL_ARRAY:
+			gerar_codigo_decl_array(t_numeros, fila, no);
 			break;
 		case IF_ELSE:
 			// testando somente a condicao
@@ -368,32 +434,6 @@ void gerar_codigo(fila_instrucoes *fila, no_arvore *no) {
 		// 			break;
 		// 	} 
 		// 	printf("%s", ((simbolo *) param->variavel)->lexema);
-		// 	break;
-		// case DECL_ARRAY:
-		// 	declarray = no->dado.declarray;
-		// 	printf("%s ", ((simbolo *) declarray->nome)->lexema);
-		// 	imprimir_pos_ordem((no_arvore *) declarray->tamanho);
-		// 	printf("ARRAY_INDEX ");
-		// 	printf("{ ");
-		// 	imprimir_pos_ordem((no_arvore *) declarray->valores_iniciais);
-		// 	printf("} ");
-		// 	printf("=");
-		// 	break;
-		// case ATTR_ARRAY:
-		// 	attrarray = no->dado.attrarray;
-		// 	printf("%s ", ((simbolo *) attrarray->nome)->lexema);
-		// 	imprimir_pos_ordem((no_arvore *) attrarray->indice);
-		// 	printf("ARRAY_INDEX ");
-		// 	imprimir_pos_ordem((no_arvore *) attrarray->valor);
-		// 	printf("=");
-		// 	break;
-		// case INDICE_ARRAY:
-		// 	indicearray = no->dado.indicearray;
-
-		// 	printf("%s ", ((simbolo *) indicearray->nome)->lexema);
-		// 	imprimir_pos_ordem((no_arvore *) indicearray->indice);
-		// 	printf("ARRAY_INDEX");
-
 		// 	break;
 		// case IF_ELSE:
 		// 	ifelse = no->dado.ifelse;
