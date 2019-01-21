@@ -225,6 +225,15 @@ t_while * criar_while(void *condicao, void *bloco){
 	return novo;
 }
 
+int contar_elementos_lista(no_arvore *no) {
+	if(no == NULL)
+		return 0;
+	if(no->tipo != LISTA)
+		return 1;
+	if(no->tipo == LISTA)
+		return contar_elementos_lista(no->dado.lista->esq) + contar_elementos_lista(no->dado.lista->dir);
+}
+
 void inserir_funcao(lista_funcoes *l, t_funcao *funcao) {
 	no_lista_funcoes *no = (no_lista_funcoes *) malloc(sizeof(no_lista_funcoes));
 	no->funcao = funcao;

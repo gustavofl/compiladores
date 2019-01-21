@@ -257,12 +257,26 @@ decl_array:
 	|  TIPO ID '[' numero_inteiro ']' '=' '{' lista_argumentos '}'		{
 																			simbolo *nome = criar_simbolo ((void *) $2, $1);
 																			verificar_simbolo_duplicado(nome);
-																			$$ = (long) criar_no_decl_array($1, nome, (void *) $4, (void *) $8);
+																			no_arvore *no_tam_indice = (no_arvore *) $4;
+
+																			int tam_lista = contar_elementos_lista((no_arvore *) $8);
+																			int tam_indice = ((numero *)no_tam_indice->dado.expr->dir)->valor_inteiro;
+																			if(tam_lista != tam_indice)
+																				mostrar_erro_e_parar("Quantidade incompativel de elementos na inicializacao do vetor.", nome->lexema);
+
+																			$$ = (long) criar_no_decl_array($1, nome, no_tam_indice, (void *) $8);
 																		}
 	|  TIPO ID '[' ']' '=' '{' lista_argumentos '}'						{
 																			simbolo *nome = criar_simbolo ((void *) $2, $1);
 																			verificar_simbolo_duplicado(nome);
-																			$$ = (long) criar_no_decl_array($1, nome, NULL, (void *) $7);
+
+																			char buffer[256];
+																			int tam = contar_elementos_lista((no_arvore *) $7);
+																			sprintf(buffer, "%d", tam);
+
+																			no_arvore *tam_array = buscar_ou_add_numero(strdup(buffer), INT);
+
+																			$$ = (long) criar_no_decl_array($1, nome, tam_array, (void *) $7);
 																		}
 	;
 
@@ -271,11 +285,7 @@ atr_array:
 	;
 
 indice_array:
-	ID '[' expr ']'								{
-													no_arvore *no = criar_no_indice_array((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3);
-
-													$$ = (long) no;
-												}
+	ID '[' expr ']'								{ $$ = (long) criar_no_indice_array((void *) localizar_simbolo(topo_pilha(pilha), (char *) $1), (void *) $3); }
 	;
 
 leia:
