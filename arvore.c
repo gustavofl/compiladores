@@ -252,6 +252,17 @@ t_funcao * localizar_funcao(lista_funcoes *l, char *lexema) {
 	return NULL;
 }
 
+no_arvore * buscar_ou_add_numero(tabela_numero *t, char *lexema, int tipo) {
+	numero *n = localizar_numero(t, lexema, tipo); 
+	if(n == NULL){
+		n = criar_numero(lexema, tipo);
+		inserir_numero(t, n);
+	}
+	no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
+	no->dado.expr->tipo = tipo;
+	return no;
+}
+
 
 void imprimir_pos_ordem(no_arvore *no) {
 	if(no == NULL)

@@ -163,6 +163,7 @@ t_while * criar_while(void *condicao, void *bloco);
 int contar_elementos_lista(no_arvore *no);
 void inserir_funcao(lista_funcoes *l, t_funcao *funcao);
 t_funcao * localizar_funcao(lista_funcoes *l, char *lexema);
+no_arvore * buscar_ou_add_numero(tabela_numero *t, char *lexema, int tipo);
 
 void imprimir_pos_ordem(no_arvore *no);
 

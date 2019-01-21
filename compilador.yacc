@@ -14,7 +14,6 @@ void yyerror(char *);
 void mostrar_erro_e_parar(char *s, char *var);
 
 simbolo * buscar_variavel_declarada(char *lexema);
-no_arvore * buscar_ou_add_numero(char *lexema, int tipo);
 void verificar_simbolo_duplicado(simbolo *s);
 void verificar_existencia_funcao(char *lexema);
 void verificar_parametros(t_funcao *f, no_arvore *lista_args);
@@ -208,7 +207,7 @@ stmt:
 	;
 
 numero_inteiro:
-	NUM_INT										{ $$ = (long) buscar_ou_add_numero((char *) $1, INT); }
+	NUM_INT										{ $$ = (long) buscar_ou_add_numero(&t_numeros, (char *) $1, INT); }
 	;
 
 expr:
@@ -219,7 +218,7 @@ expr:
 													no->dado.expr->tipo = s->tipo;
 													$$ = (long) no;
 												}
-	| NUM_REAL									{ $$ = (long) buscar_ou_add_numero((char *) $1, REAL); }
+	| NUM_REAL									{ $$ = (long) buscar_ou_add_numero(&t_numeros, (char *) $1, REAL); }
 	| indice_array								{ $$ = (long) criar_no_expressao(INDICE_ARRAY, (void *) $1, NULL); }
 	| chamar_funcao								{ $$ = (long) criar_no_expressao(CHAMADA_FUNCAO, (void *) $1, NULL); }
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
@@ -274,7 +273,7 @@ decl_array:
 																			int tam = contar_elementos_lista((no_arvore *) $7);
 																			sprintf(buffer, "%d", tam);
 
-																			no_arvore *tam_array = buscar_ou_add_numero(strdup(buffer), INT);
+																			no_arvore *tam_array = buscar_ou_add_numero(&t_numeros, strdup(buffer), INT);
 
 																			$$ = (long) criar_no_decl_array($1, nome, tam_array, (void *) $7);
 																		}
@@ -350,17 +349,6 @@ simbolo * buscar_variavel_declarada(char *lexema) {
 	no->dado.expr->tipo = s->tipo;
 	return no;
 	*/
-}
-
-no_arvore * buscar_ou_add_numero(char *lexema, int tipo) {
-	numero *n = localizar_numero(&t_numeros, lexema, tipo); 
-	if(n == NULL){
-		n = criar_numero(lexema, tipo);
-		inserir_numero(&t_numeros, n);
-	}
-	no_arvore *no = criar_no_expressao(NUMERO, n, NULL);
-	no->dado.expr->tipo = tipo;
-	return no;
 }
 
 void verificar_simbolo_duplicado(simbolo *s) {
