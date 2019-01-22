@@ -18,5 +18,10 @@ programa {
 		k=soma(3,7)
 		leia(k)
 		vv(k)
+		inteiro lista[10]
+		inteiro i = 0
+		enquanto(i<10) {
+			lista[i] = 17%i
+		}
 	}
 }
