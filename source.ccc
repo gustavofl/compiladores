@@ -3,13 +3,8 @@ programa {
 		inteiro a
 
 		se(a<=9) {
-			a=1
-			a=a+a
-		}senao{
-			se(a>1)
-				a=2
-			senao
-				a=3
+			enquanto(a>1)
+				a=a-1
 		}
 	}
 }

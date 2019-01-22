@@ -106,7 +106,7 @@ simbolo * gerar_codigo_expr(fila_instrucoes *fila, no_arvore *no) {
 		case ID:
 			return (simbolo *) expr->dir;
 		case SOMA: case SUB: case MULT: case DIV: case MOD:
-			result = gerar_codigo_expr_simples(fila, SOMA, expr);
+			result = gerar_codigo_expr_simples(fila, expr->op, expr);
 			break;
 		case UMINUS:
 			first = gerar_codigo_expr(fila, expr->dir);
@@ -264,7 +264,7 @@ void gerar_codigo_if_else(tabela_numero *t_numeros, fila_instrucoes *fila, no_ar
 	if(ifelse->bloco_else == NULL) {
 		l1 = gerar_label();
 
-		i = gerar_instrucao(IF_ELSE, condicao, l1, NULL);
+		i = gerar_instrucao(SE_FALSO, condicao, l1, NULL);
 		add_instrucao(fila, i);
 
 		gerar_codigo(t_numeros, fila, ifelse->bloco_if);
@@ -275,7 +275,7 @@ void gerar_codigo_if_else(tabela_numero *t_numeros, fila_instrucoes *fila, no_ar
 		l1 = gerar_label();
 		l2 = gerar_label();
 
-		i = gerar_instrucao(IF_ELSE, condicao, l1, NULL);
+		i = gerar_instrucao(SE_FALSO, condicao, l1, NULL);
 		add_instrucao(fila, i);
 
 		gerar_codigo(t_numeros, fila, ifelse->bloco_if);
@@ -291,6 +291,32 @@ void gerar_codigo_if_else(tabela_numero *t_numeros, fila_instrucoes *fila, no_ar
 		i = gerar_instrucao(LABEL, l2, NULL, NULL);
 		add_instrucao(fila, i);
 	}
+}
+
+void gerar_codigo_while(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no) {
+	simbolo *condicao, *l1, *l2;
+	instrucao *i;
+
+	t_while *twhile = (t_while *) no->dado.twhile;
+
+	l1 = gerar_label();
+	l2 = gerar_label();
+
+	i = gerar_instrucao(LABEL, l1, NULL, NULL);
+	add_instrucao(fila, i);
+
+	condicao = gerar_codigo_expr_logica(fila, twhile->condicao);
+
+	i = gerar_instrucao(SE_FALSO, condicao, l2, NULL);
+	add_instrucao(fila, i);
+
+	gerar_codigo(t_numeros, fila, twhile->bloco);
+
+	i = gerar_instrucao(JUMPER, l1, NULL, NULL);
+	add_instrucao(fila, i);
+
+	i = gerar_instrucao(LABEL, l2, NULL, NULL);
+	add_instrucao(fila, i);
 }
 
 void imprimir_codigo(fila_instrucoes *fila) {
@@ -372,7 +398,7 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case ATTR_ARRAY:
 				opcode = "attr_array";
 				break;
-			case IF_ELSE:
+			case SE_FALSO:
 				opcode = "se_falso";
 				break;
 			case LABEL:
@@ -447,6 +473,9 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		case IF_ELSE:
 			gerar_codigo_if_else(t_numeros, fila, no);
 			break;
+		case WHILE:
+			gerar_codigo_while(t_numeros, fila, no);
+			break;
 		// case CHAMADA_FUNCAO:
 		// 	chamadafuncao = no->dado.chamadafuncao;
 
@@ -489,14 +518,6 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		// 			break;
 		// 	} 
 		// 	printf("%s", ((simbolo *) param->variavel)->lexema);
-		// 	break;
-		// case WHILE:
-		// 	twhile = no->dado.twhile;
-		// 	printf("{ ");
-		// 	imprimir_pos_ordem((no_arvore *) twhile->bloco);
-		// 	printf("} ( ");
-		// 	imprimir_pos_ordem((no_arvore *) twhile->condicao);
-		// 	printf(") WHILE");
 		// 	break;
 	}
 }
