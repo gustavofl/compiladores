@@ -21,8 +21,10 @@ typedef struct fila_instrucoes{
 	no_instrucao *ultimo;
 } fila_instrucoes;
 
-char * gerar_lexema_temp();
 simbolo * gerar_simbolo_temp(int tipo);
+simbolo * gerar_label();
+simbolo * gerar_label_funcao(char *identificador);
+simbolo * gerar_label_retorno(char *identificador, int tipo);
 
 instrucao * gerar_instrucao(int opcode, simbolo *result, void *first, void *second);
 void add_instrucao(fila_instrucoes *fila, instrucao *i);
@@ -40,6 +42,7 @@ void gerar_codigo_attr_array(fila_instrucoes *fila, no_arvore *no);
 void gerar_codigo_decl_array(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no);
 void gerar_codigo_if_else(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no);
 void gerar_codigo_while(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no);
+void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no);
 
 void imprimir_codigo(fila_instrucoes *fila);
 

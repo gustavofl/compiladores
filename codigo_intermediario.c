@@ -26,6 +26,24 @@ simbolo * gerar_label() {
 	return s;
 }
 
+simbolo * gerar_label_funcao(char *identificador) {
+	char buffer[256];
+	sprintf(buffer, "%s.label", identificador);
+
+	simbolo *s = criar_simbolo(strdup(buffer), INT);
+
+	return s;
+}
+
+simbolo * gerar_label_retorno(char *identificador, int tipo){
+	char buffer[256];
+	sprintf(buffer, "%s.retorno", identificador);
+
+	simbolo *s = criar_simbolo(strdup(buffer), tipo);
+
+	return s;
+}
+
 instrucao * gerar_instrucao(int opcode, simbolo *result, void *first, void *second) {
 	instrucao *novo = (instrucao *)  malloc(sizeof(instrucao));
 	novo->opcode = opcode;
@@ -319,6 +337,39 @@ void gerar_codigo_while(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvo
 	add_instrucao(fila, i);
 }
 
+void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no) {
+	simbolo *identificador, *retorno;
+	no_arvore *no_param;
+	instrucao *i;
+
+	t_funcao *funcao = no->dado.funcao;
+
+	identificador = gerar_label_funcao(funcao->nome->lexema);
+	i = gerar_instrucao(LABEL, identificador, NULL, NULL);
+	add_instrucao(fila, i);
+
+	no_arvore *no_lista = funcao->params;
+	while(no_lista != NULL) {
+		no_param = no_lista->dado.lista->dir;
+		i = gerar_instrucao(LER_PARAM, no_param->dado.param->variavel, NULL, NULL);
+		add_instrucao(fila, i);
+
+		no_lista = no_lista->dado.lista->esq;
+	}
+
+	gerar_codigo(t_numeros, fila, funcao->bloco);
+
+	if(funcao->tipo != VAZIO) {
+		printf("NAO FOI IMPLEMENTADO FUNCAO COM RETORNO\n");
+		// retorno = gerar_label_retorno(funcao->nome->lexema, funcao->tipo);
+		// i = gerar_instrucao(ATTR, identificador, NULL, NULL);
+		// add_instrucao(fila, i);
+	}
+
+	i = gerar_instrucao(JMP_RETORNO, NULL, NULL, NULL);
+	add_instrucao(fila, i);
+}
+
 void imprimir_codigo(fila_instrucoes *fila) {
 	no_instrucao *no = fila->primeiro;
 	instrucao *i;
@@ -407,6 +458,13 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case JUMPER:
 				opcode = "jmp";
 				break;
+			case LER_PARAM:
+				opcode = "ler_param";
+				break;
+			case JMP_RETORNO:
+				printf("(jmp_retorno,-,-,-)\n");
+				no = no->proximo;
+				continue;
 			default:
 				opcode = "undefined";
 				break;
@@ -427,7 +485,7 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			sprintf(buffer, "%.2f", ((numero *)i->first)->valor_real);
 			first = strdup(buffer);
 		}
-		else if(i->opcode == LABEL || i->opcode == JUMPER) {
+		else if(i->opcode == LABEL || i->opcode == JUMPER || i->opcode == LER_PARAM) {
 			first = "-";
 		}
 		else {
@@ -476,6 +534,9 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		case WHILE:
 			gerar_codigo_while(t_numeros, fila, no);
 			break;
+		case FUNCAO:
+			gerar_codigo_funcao(t_numeros, fila, no);
+			break;
 		// case CHAMADA_FUNCAO:
 		// 	chamadafuncao = no->dado.chamadafuncao;
 
@@ -494,30 +555,6 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		// case LEIA:
 		// 	leia = no->dado.leia;
 		// 	printf("%s LEIA", ((simbolo *) leia->variavel)->lexema);
-		// 	break;
-		// case FUNCAO:
-		// 	funcao = no->dado.funcao;
-		// 	printf("\nFUNCAO %s", ((simbolo *) funcao->nome)->lexema);
-		// 	printf(" (");
-		// 	imprimir_pos_ordem((no_arvore *) funcao->params);
-		// 	printf(") { \n");
-		// 	imprimir_pos_ordem((no_arvore *) funcao->bloco);
-		// 	printf("\n}\n");
-		// 	break;
-		// case PARAMETRO:
-		// 	param = no->dado.param;
-		// 	switch(param->tipo){
-		// 		case INT:
-		// 			printf("INT ");
-		// 			break;
-		// 		case REAL:
-		// 			printf("REAL ");
-		// 			break;
-		// 		default:
-		// 			printf("UNDEFINED ");
-		// 			break;
-		// 	} 
-		// 	printf("%s", ((simbolo *) param->variavel)->lexema);
 		// 	break;
 	}
 }

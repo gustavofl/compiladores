@@ -1,4 +1,8 @@
 programa {
+	funcao inteiro soma(inteiro a, inteiro b) {
+
+	}
+
 	funcao inicio () {
 		inteiro a
 

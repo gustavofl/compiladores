@@ -37,7 +37,7 @@ fila_instrucoes codigo_intermediario;
 %token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE WHILE UMINUS
 
 // Constantes que serão usadas na geração de código intermediário
-%token CAST_INT CAST_REAL LABEL JUMPER SE_FALSO
+%token CAST_INT CAST_REAL LABEL JUMPER SE_FALSO LER_PARAM JMP_RETORNO
 
 %nonassoc REDUCE
 %nonassoc '('
@@ -56,7 +56,11 @@ fila_instrucoes codigo_intermediario;
 program:
 	PROGRAMA '{' criar_contexto
 	corpo_programa
-	'}'	fechar_contexto							{ /* imprimir_pos_ordem((no_arvore *) $4); */ }
+	'}'	fechar_contexto							{ 
+													/* imprimir_pos_ordem((no_arvore *) $4); */
+													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $4);
+													imprimir_codigo(&codigo_intermediario);
+												}
 	;
 
 corpo_programa:
@@ -120,9 +124,6 @@ funcao:
 	lista_parametros_vazio 
 	')' 
 	bloco_composto								{
-													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $7);
-													imprimir_codigo(&codigo_intermediario);
-
 													verificar_existencia_funcao((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
 													no_arvore *no = criar_no_funcao($2, s, (void *) $5, (void *) $7);
@@ -153,7 +154,7 @@ lista_parametros:
 
 tipo_retorno:
 	TIPO 										{ $$ = (long) $1; }
-	|											{ $$ = (long) NULL; }
+	|											{ $$ = VAZIO; }
 	;
 
 bloco_composto:
