@@ -317,7 +317,7 @@ leia:
 	LEIA 
 	'(' 
 	ID 
-	')'											{ $$ = (long) criar_no_leia((void *) localizar_simbolo(topo_pilha(pilha), (char *) $3)); }
+	')'											{ $$ = (long) criar_no_leia((void *) buscar_variavel_declarada((char *) $3)); }
 	;
 
 escreva:
