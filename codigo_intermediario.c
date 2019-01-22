@@ -371,7 +371,7 @@ void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arv
 }
 
 simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no) {
-	simbolo *identificador, *retorno_label, *retorno_expr, *expr_arg, *result;
+	simbolo *identificador, *retorno_label, *expr_arg, *result;
 	no_arvore *no_arg;
 	instrucao *i;
 
@@ -400,6 +400,35 @@ simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no) {
 	}
 
 	return result;
+}
+
+void gerar_codigo_escreva(fila_instrucoes *fila, no_arvore *no) {
+	simbolo *expr_arg;
+	no_arvore *no_arg;
+	instrucao *i;
+
+	t_escreva *escreva = no->dado.escreva;
+
+	no_arvore *no_lista = escreva->args;
+	while(no_lista != NULL) {
+		no_arg = no_lista->dado.lista->dir;
+		expr_arg = gerar_codigo_expr(fila, no_arg);
+
+		i = gerar_instrucao(ESCREVA, expr_arg, NULL, NULL);
+		add_instrucao(fila, i);
+
+		no_lista = no_lista->dado.lista->esq;
+	}
+}
+
+
+void gerar_codigo_leia(fila_instrucoes *fila, no_arvore *no) {
+	instrucao *i;
+
+	t_leia *leia = no->dado.leia;
+
+	i = gerar_instrucao(LEIA, leia->variavel, NULL, NULL);
+	add_instrucao(fila, i);
 }
 
 void imprimir_codigo(fila_instrucoes *fila) {
@@ -503,6 +532,12 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case CHAMADA_FUNCAO:
 				opcode = "chamada_funcao";
 				break;
+			case ESCREVA:
+				opcode = "escreva";
+				break;
+			case LEIA:
+				opcode = "leia";
+				break;
 			default:
 				opcode = "undefined";
 				break;
@@ -523,7 +558,7 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			sprintf(buffer, "%.2f", ((numero *)i->first)->valor_real);
 			first = strdup(buffer);
 		}
-		else if(i->opcode == LABEL || i->opcode == JUMPER || i->opcode == LER_PARAM || i->opcode == SALVAR_PARAM || i->opcode == CHAMADA_FUNCAO) {
+		else if(i->first == NULL) {
 			first = "-";
 		}
 		else {
@@ -578,15 +613,11 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		case CHAMADA_FUNCAO:
 			gerar_codigo_chamada_funcao(fila, no);
 			break;
-		// case ESCREVA:
-		// 	escreva = no->dado.escreva;
-		// 	printf(" (");
-		// 	imprimir_pos_ordem((no_arvore *) escreva->args);
-		// 	printf(") ESCREVA");
-		// 	break;
-		// case LEIA:
-		// 	leia = no->dado.leia;
-		// 	printf("%s LEIA", ((simbolo *) leia->variavel)->lexema);
-		// 	break;
+		case ESCREVA:
+			gerar_codigo_escreva(fila, no);
+			break;
+		case LEIA:
+			gerar_codigo_leia(fila, no);
+			break;
 	}
 }

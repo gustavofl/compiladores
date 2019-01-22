@@ -43,6 +43,8 @@ void gerar_codigo_if_else(tabela_numero *t_numeros, fila_instrucoes *fila, no_ar
 void gerar_codigo_while(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no);
 void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no);
 simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no);
+void gerar_codigo_escreva(fila_instrucoes *fila, no_arvore *no);
+void gerar_codigo_leia(fila_instrucoes *fila, no_arvore *no);
 
 void imprimir_codigo(fila_instrucoes *fila);
 

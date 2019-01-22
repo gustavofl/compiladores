@@ -4,11 +4,13 @@ programa {
 	}
 
 	funcao vv(inteiro p) {
+		escreva(p)
 	}
 
 	funcao inicio () {
 		inteiro k
 		k=soma(3,7)
-		vv(9)
+		leia(k)
+		vv(k)
 	}
 }
