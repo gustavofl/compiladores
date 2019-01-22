@@ -6,6 +6,7 @@
 #include "y.tab.h"
 
 int temp_ctr = 1;
+int label_ctr = 1;
 
 char * gerar_lexema_temp() {
 	char buffer[256];
@@ -18,6 +19,15 @@ simbolo * gerar_simbolo_temp(int tipo) {
 	sprintf(buffer, "t%d", temp_ctr++);
 
 	simbolo *s = criar_simbolo(strdup(buffer), tipo);
+
+	return s;
+}
+
+simbolo * gerar_label() {
+	char buffer[256];
+	sprintf(buffer, "L%d", label_ctr++);
+
+	simbolo *s = criar_simbolo(strdup(buffer), INT);
 
 	return s;
 }
@@ -249,6 +259,46 @@ simbolo * gerar_codigo_expr_logica(fila_instrucoes *fila, no_arvore *no) {
 	return result;
 }
 
+void gerar_codigo_if_else(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no) {
+	simbolo *condicao, *l1, *l2;
+	instrucao *i;
+
+	t_if_else *ifelse = (t_if_else *) no->dado.ifelse;
+
+	condicao = gerar_codigo_expr_logica(fila, ifelse->condicao);
+
+	if(ifelse->bloco_else == NULL) {
+		l1 = gerar_label();
+
+		i = gerar_instrucao(IF_ELSE, condicao, l1, NULL);
+		add_instrucao(fila, i);
+
+		gerar_codigo(t_numeros, fila, ifelse->bloco_if);
+
+		i = gerar_instrucao(LABEL, l1, NULL, NULL);
+		add_instrucao(fila, i);
+	} else {
+		l1 = gerar_label();
+		l2 = gerar_label();
+
+		i = gerar_instrucao(IF_ELSE, condicao, l1, NULL);
+		add_instrucao(fila, i);
+
+		gerar_codigo(t_numeros, fila, ifelse->bloco_if);
+
+		i = gerar_instrucao(JUMPER, l2, NULL, NULL);
+		add_instrucao(fila, i);
+
+		i = gerar_instrucao(LABEL, l1, NULL, NULL);
+		add_instrucao(fila, i);
+
+		gerar_codigo(t_numeros, fila, ifelse->bloco_else);
+
+		i = gerar_instrucao(LABEL, l2, NULL, NULL);
+		add_instrucao(fila, i);
+	}
+}
+
 void imprimir_codigo(fila_instrucoes *fila) {
 	no_instrucao *no = fila->primeiro;
 	instrucao *i;
@@ -328,6 +378,15 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			case ATTR_ARRAY:
 				opcode = "attr_array";
 				break;
+			case IF_ELSE:
+				opcode = "se_falso";
+				break;
+			case LABEL:
+				opcode = "label";
+				break;
+			case JUMPER:
+				opcode = "jmp";
+				break;
 			default:
 				opcode = "undefined";
 				break;
@@ -347,6 +406,9 @@ void imprimir_codigo(fila_instrucoes *fila) {
 		else if(i->opcode == NUM_REAL) {
 			sprintf(buffer, "%.2f", ((numero *)i->first)->valor_real);
 			first = strdup(buffer);
+		}
+		else if(i->opcode == LABEL || i->opcode == JUMPER) {
+			first = "-";
 		}
 		else {
 			first = ((simbolo *)i->first)->lexema;
@@ -389,8 +451,7 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 			gerar_codigo_decl_array(t_numeros, fila, no);
 			break;
 		case IF_ELSE:
-			// testando somente a condicao
-			gerar_codigo_expr_logica(fila, (no_arvore *)((t_if_else *) no->dado.ifelse)->condicao);
+			gerar_codigo_if_else(t_numeros, fila, no);
 			break;
 		// case CHAMADA_FUNCAO:
 		// 	chamadafuncao = no->dado.chamadafuncao;

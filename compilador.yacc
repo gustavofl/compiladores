@@ -37,7 +37,7 @@ fila_instrucoes codigo_intermediario;
 %token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE WHILE UMINUS
 
 // Constantes que serão usadas na geração de código intermediário
-%token CAST_INT CAST_REAL
+%token CAST_INT CAST_REAL LABEL JUMPER
 
 %nonassoc REDUCE
 %nonassoc '('
@@ -120,6 +120,9 @@ funcao:
 	lista_parametros_vazio 
 	')' 
 	bloco_composto								{
+													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $7);
+													imprimir_codigo(&codigo_intermediario);
+
 													verificar_existencia_funcao((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
 													no_arvore *no = criar_no_funcao($2, s, (void *) $5, (void *) $7);
@@ -156,12 +159,7 @@ tipo_retorno:
 bloco_composto:
 	'{' criar_contexto verificar_buffer
 	stmts
-	'}' fechar_contexto							{
-													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $4);
-													imprimir_codigo(&codigo_intermediario);
-
-													$$ = $4;
-												}
+	'}' fechar_contexto							{ $$ = $4; }
 	;
 
 criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
