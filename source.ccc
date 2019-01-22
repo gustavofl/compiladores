@@ -1,14 +1,14 @@
 programa {
 	funcao real soma(inteiro a, inteiro b) {
-		retorne 1.6
+		retorne a+b
+	}
+
+	funcao vv(inteiro p) {
 	}
 
 	funcao inicio () {
-		inteiro a
-
-		se(a<=9) {
-			enquanto(a>1)
-				a=a-1
-		}
+		inteiro k
+		k=soma(3,7)
+		vv(9)
 	}
 }

@@ -37,7 +37,7 @@ fila_instrucoes codigo_intermediario;
 %token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE WHILE UMINUS
 
 // Constantes que serão usadas na geração de código intermediário
-%token CAST_INT CAST_REAL LABEL JUMPER SE_FALSO LER_PARAM JMP_RETORNO
+%token CAST_INT CAST_REAL LABEL JUMPER SE_FALSO LER_PARAM JMP_RETORNO SALVAR_PARAM
 
 %nonassoc REDUCE
 %nonassoc '('
@@ -220,7 +220,7 @@ stmt:
 												}
 	| decl_array								{ $$ = $1; }
 	| atr_array									{ $$ = $1; }
-	| chamar_funcao								{ $$ = (long) criar_no_expressao(CHAMADA_FUNCAO, (void *) $1, NULL); }
+	| chamar_funcao								{ $$ = $1; }
 	| leia 										{ $$ = $1; }
 	| escreva 									{ $$ = $1; }
 	| se_senao 									{ $$ = $1; }
@@ -241,7 +241,12 @@ expr:
 												}
 	| NUM_REAL									{ $$ = (long) buscar_ou_add_numero(&t_numeros, (char *) $1, REAL); }
 	| indice_array								{ $$ = (long) criar_no_expressao(INDICE_ARRAY, (void *) $1, NULL); }
-	| chamar_funcao								{ $$ = (long) criar_no_expressao(CHAMADA_FUNCAO, (void *) $1, NULL); }
+	| chamar_funcao								{
+													no_arvore *no = (no_arvore *) $1;
+													if(no->dado.chamadafuncao->tipo == VAZIO)
+														mostrar_erro_e_parar("Funcoes com retorno VAZIO nao podem ser usadas em expressoes.", no->dado.chamadafuncao->nome->lexema);
+													$$ = (long) criar_no_expressao(CHAMADA_FUNCAO, no, NULL);
+												}
 	| expr '*' expr								{ $$ = (long) criar_no_expressao(MULT, (void *) $3, (void *) $1); }
 	| expr '/' expr								{ $$ = (long) criar_no_expressao(DIV, (void *) $3, (void *) $1); }
 	| expr '%' expr								{ $$ = (long) criar_no_expressao(MOD, (void *) $3, (void *) $1); }

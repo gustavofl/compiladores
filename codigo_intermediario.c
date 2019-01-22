@@ -161,10 +161,6 @@ void gerar_codigo_attr(fila_instrucoes *fila, no_arvore *no) {
 	add_instrucao(fila, i);
 }
 
-simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no){
-	return NULL;
-}
-
 simbolo * gerar_codigo_indice_array(fila_instrucoes *fila, no_arvore *no) {
 	simbolo *result;
 	void *first, *second;
@@ -374,6 +370,38 @@ void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arv
 	add_instrucao(fila, i);
 }
 
+simbolo * gerar_codigo_chamada_funcao(fila_instrucoes *fila, no_arvore *no) {
+	simbolo *identificador, *retorno_label, *retorno_expr, *expr_arg, *result;
+	no_arvore *no_arg;
+	instrucao *i;
+
+	t_chamada_funcao *chamadafuncao = no->dado.chamadafuncao;
+
+	no_arvore *no_lista = chamadafuncao->args;
+	while(no_lista != NULL) {
+		no_arg = no_lista->dado.lista->dir;
+		expr_arg = gerar_codigo_expr(fila, no_arg);
+
+		i = gerar_instrucao(SALVAR_PARAM, expr_arg, NULL, NULL);
+		add_instrucao(fila, i);
+
+		no_lista = no_lista->dado.lista->esq;
+	}
+
+	identificador = gerar_label_funcao(chamadafuncao->nome->lexema);
+	i = gerar_instrucao(CHAMADA_FUNCAO, identificador, NULL, NULL);
+	add_instrucao(fila, i);
+
+	if(chamadafuncao->tipo != VAZIO) {
+		retorno_label = gerar_label_retorno(chamadafuncao->nome->lexema, chamadafuncao->tipo);
+		result = gerar_simbolo_temp(chamadafuncao->tipo);
+		i = gerar_instrucao(ATTR, result, retorno_label, NULL);
+		add_instrucao(fila, i);
+	}
+
+	return result;
+}
+
 void imprimir_codigo(fila_instrucoes *fila) {
 	no_instrucao *no = fila->primeiro;
 	instrucao *i;
@@ -469,6 +497,12 @@ void imprimir_codigo(fila_instrucoes *fila) {
 				printf("(jmp_retorno,-,-,-)\n");
 				no = no->proximo;
 				continue;
+			case SALVAR_PARAM:
+				opcode = "salvar_param";
+				break;
+			case CHAMADA_FUNCAO:
+				opcode = "chamada_funcao";
+				break;
 			default:
 				opcode = "undefined";
 				break;
@@ -489,7 +523,7 @@ void imprimir_codigo(fila_instrucoes *fila) {
 			sprintf(buffer, "%.2f", ((numero *)i->first)->valor_real);
 			first = strdup(buffer);
 		}
-		else if(i->opcode == LABEL || i->opcode == JUMPER || i->opcode == LER_PARAM) {
+		else if(i->opcode == LABEL || i->opcode == JUMPER || i->opcode == LER_PARAM || i->opcode == SALVAR_PARAM || i->opcode == CHAMADA_FUNCAO) {
 			first = "-";
 		}
 		else {
@@ -541,15 +575,9 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		case FUNCAO:
 			gerar_codigo_funcao(t_numeros, fila, no);
 			break;
-		// case CHAMADA_FUNCAO:
-		// 	chamadafuncao = no->dado.chamadafuncao;
-
-		// 	printf("%s", ((simbolo *) chamadafuncao->nome)->lexema);
-		// 	printf(" (");
-		// 	imprimir_pos_ordem((no_arvore *) chamadafuncao->args);
-		// 	printf(") CHAMADA_FUNCAO");
-
-		// 	break;
+		case CHAMADA_FUNCAO:
+			gerar_codigo_chamada_funcao(fila, no);
+			break;
 		// case ESCREVA:
 		// 	escreva = no->dado.escreva;
 		// 	printf(" (");
