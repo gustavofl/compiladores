@@ -9,7 +9,7 @@ programa {
 			leia(p)
 		} senao {
 			enquanto(p>3)
-				p=(p/2)+5*7-22
+				p=p/(4+2)+5*7-22
 		}
 	}
 
@@ -20,7 +20,7 @@ programa {
 		vv(k)
 		inteiro lista[10]
 		inteiro i = 0
-		enquanto(i<10) {
+		enquanto(i<10 e lista[i] >= 11) {
 			lista[i] = 17%i
 		}
 	}

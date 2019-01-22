@@ -435,6 +435,13 @@ void imprimir_pos_ordem(no_arvore *no) {
 			imprimir_pos_ordem((no_arvore *) funcao->params);
 			printf(") { \n");
 			imprimir_pos_ordem((no_arvore *) funcao->bloco);
+
+			if(funcao->retorno != NULL) {
+				printf("\n");
+				imprimir_pos_ordem((no_arvore *) funcao->retorno);
+				printf("RETORNE");
+			}
+			
 			printf("\n}\n");
 			break;
 		case PARAMETRO:
