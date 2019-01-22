@@ -7,6 +7,7 @@
 #include "tabela.h"
 #include "arvore.h"
 #include "codigo_intermediario.h"
+#include "codigo_mips.h"
 
 int yylex(void);
 void yyerror(char *);
@@ -57,9 +58,10 @@ program:
 	PROGRAMA '{' criar_contexto
 	corpo_programa
 	'}'	fechar_contexto							{ 
-													imprimir_pos_ordem((no_arvore *) $4);
+													// imprimir_pos_ordem((no_arvore *) $4);
 													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $4);
 													// imprimir_codigo(&codigo_intermediario);
+													// imprimir_mips(&codigo_intermediario);
 												}
 	;
 

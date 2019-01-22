@@ -1,5 +1,5 @@
 all: compilador
-compilador: y.tab.c lex.yy.c tabela.c tabela.h arvore.c arvore.h codigo_intermediario.c codigo_intermediario.h
+compilador: y.tab.c lex.yy.c tabela.c tabela.h arvore.c arvore.h codigo_intermediario.c codigo_intermediario.h codigo_mips.c codigo_mips.h
 		gcc -o compilador *.c
 y.tab.c: compilador.yacc
 		# yacc -d compilador.yacc --debug --verbose
@@ -10,3 +10,5 @@ clean:
 		rm y.tab.c y.tab.h lex.yy.c compilador
 test: compilador source.ccc
 		./compilador < source.ccc
+out: compilador source.ccc
+		make -s test > output.asm ; cat output.asm
