@@ -1,16 +1,7 @@
 programa {
-	funcao real soma(inteiro a, inteiro b) {
-		retorne a+b
-	}
-
-	funcao vv(inteiro p) {
-		escreva(p)
-	}
 
 	funcao inicio () {
 		inteiro k
-		k=soma(3,7)
-		leia(k)
-		vv(k)
+		k=2
 	}
 }
