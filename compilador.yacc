@@ -57,9 +57,12 @@ program:
 	PROGRAMA '{' criar_contexto
 	corpo_programa
 	'}'	fechar_contexto							{ 
-													imprimir_pos_ordem((no_arvore *) $4);
+													// imprimir_pos_ordem((no_arvore *) $4);
+
+													// printf("\n\n\n");
+
 													gerar_codigo(&t_numeros, &codigo_intermediario, (no_arvore *) $4);
-													// imprimir_codigo(&codigo_intermediario);
+													imprimir_codigo(&codigo_intermediario);
 												}
 	;
 

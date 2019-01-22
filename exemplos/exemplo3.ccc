@@ -2,5 +2,10 @@ programa {
 	funcao inicio () {
 		inteiro k
 		k=3
+		se(k<8) {
+			k = 66
+		} senao{
+			k = 99
+		}
 	}
 }

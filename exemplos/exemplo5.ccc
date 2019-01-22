@@ -1,0 +1,7 @@
+programa {
+	funcao inicio () {
+		inteiro k[5]
+		k[3]=3
+		escreva(k[2])
+	}
+}

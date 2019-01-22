@@ -1,0 +1,10 @@
+programa {
+	funcao inteiro soma(inteiro a, inteiro b) {
+	retorne a+b
+	}
+
+	funcao inicio () {
+		inteiro k
+		k=soma(3,4)
+	}
+}

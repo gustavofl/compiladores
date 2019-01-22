@@ -1,6 +1,7 @@
 programa {
 	funcao inicio () {
-		inteiro k
-		k=3
+		real k
+		k=5.6
+		escreva(k)
 	}
 }

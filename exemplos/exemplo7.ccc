@@ -1,6 +1,7 @@
 programa {
 	funcao inicio () {
 		inteiro k
-		k=3
+		leia(k)
+		escreva(k)
 	}
 }
