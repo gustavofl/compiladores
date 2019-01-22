@@ -31,7 +31,7 @@ fila_instrucoes codigo_intermediario;
 // int yydebug = 1;
 %}
 
-%token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO
+%token PROGRAMA TIPO VAZIO INT REAL NUM_INT NUM_REAL ID EXPR ATTR OU E NAO SE SENAO ENQUANTO FUNCAO ESCREVA LEIA CADEIA MAIOR_IGUAL MENOR_IGUAL DIFERENTE IGUAL_COMP VERDADEIRO FALSO BOOLEANO RETORNE
 
 // Constantes que são usadas para construir a arvore sintatica
 %token EXPR_LOGICA MAIOR NUMERO MENOR SOMA SUB MULT DIV MOD NO_ARVORE NULO LISTA_ATTR LISTA_ARG PARAMETRO LISTA_PARAMETRO CHAMADA_FUNCAO DECL_ARRAY LISTA ATTR_ARRAY INDICE_ARRAY IF_ELSE WHILE UMINUS
@@ -123,10 +123,20 @@ funcao:
 	'(' 
 	lista_parametros_vazio 
 	')' 
-	bloco_composto								{
+	bloco_funcao								{
+													no_arvore *no = (no_arvore *) $7;
 													verificar_existencia_funcao((char *) $3);
 													simbolo *s = criar_simbolo((char *) $3, $2);
-													no_arvore *no = criar_no_funcao($2, s, (void *) $5, (void *) $7);
+													no->dado.funcao->tipo = (int) $2;
+													no->dado.funcao->nome = s;
+													no->dado.funcao->params = (void *) $5;
+
+													// verificar o tipo da funcao e do retorno (SEMANTICO)
+													if($2 == VAZIO && no->dado.funcao->retorno != NULL)
+														mostrar_erro_e_parar("retorno de funcao invalido.", s->lexema);
+													if($2 != VAZIO && no->dado.funcao->retorno == NULL)
+														mostrar_erro_e_parar("retorno de funcao invalido.", s->lexema);
+
 													inserir_funcao(&l_funcoes, no->dado.funcao);
 													$$ = (long) no;
 												}
@@ -157,15 +167,12 @@ tipo_retorno:
 	|											{ $$ = VAZIO; }
 	;
 
-bloco_composto:
+bloco_funcao:
 	'{' criar_contexto verificar_buffer
 	stmts
-	'}' fechar_contexto							{ $$ = $4; }
+	retorno_funcao
+	'}' fechar_contexto							{ $$ = (long) criar_no_funcao(0, NULL, NULL, (void *) $4, (void *) $5); }
 	;
-
-criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
-
-fechar_contexto:								{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 
 verificar_buffer:								{
 													while(fila.primeiro != NULL){
@@ -173,6 +180,21 @@ verificar_buffer:								{
 														inserir_simbolo(topo_pilha(pilha), param);
 													}
 												}
+retorno_funcao:
+	RETORNE expr 								{ $$ = $2; }
+	| RETORNE									{ $$ = (long) NULL; }
+	|											{ $$ = (long) NULL; }
+	;
+
+bloco_composto:
+	'{' criar_contexto
+	stmts
+	'}' fechar_contexto							{ $$ = $3; }
+	;
+
+criar_contexto: 								{ pilha = empilhar_contexto(pilha, criar_contexto(topo_pilha(pilha))); }
+
+fechar_contexto:								{ /* imprimir_contexto(topo_pilha(pilha)); */ desempilhar_contexto(&pilha); }
 
 bloco:
 	bloco_composto								{ $$ = $1; }

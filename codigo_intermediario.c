@@ -338,7 +338,7 @@ void gerar_codigo_while(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvo
 }
 
 void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no) {
-	simbolo *identificador, *retorno;
+	simbolo *identificador, *retorno_label, *retorno_expr;
 	no_arvore *no_param;
 	instrucao *i;
 
@@ -360,10 +360,14 @@ void gerar_codigo_funcao(tabela_numero *t_numeros, fila_instrucoes *fila, no_arv
 	gerar_codigo(t_numeros, fila, funcao->bloco);
 
 	if(funcao->tipo != VAZIO) {
-		printf("NAO FOI IMPLEMENTADO FUNCAO COM RETORNO\n");
-		// retorno = gerar_label_retorno(funcao->nome->lexema, funcao->tipo);
-		// i = gerar_instrucao(ATTR, identificador, NULL, NULL);
-		// add_instrucao(fila, i);
+		retorno_expr = gerar_codigo_expr(fila, funcao->retorno);
+
+		if(retorno_expr->tipo != funcao->tipo)
+			retorno_expr = gerar_codigo_conversao_tipo(fila, funcao->tipo, retorno_expr);
+
+		retorno_label = gerar_label_retorno(funcao->nome->lexema, funcao->tipo);
+		i = gerar_instrucao(ATTR, retorno_label, retorno_expr, NULL);
+		add_instrucao(fila, i);
 	}
 
 	i = gerar_instrucao(JMP_RETORNO, NULL, NULL, NULL);

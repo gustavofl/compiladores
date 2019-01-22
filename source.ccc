@@ -1,6 +1,6 @@
 programa {
-	funcao inteiro soma(inteiro a, inteiro b) {
-
+	funcao real soma(inteiro a, inteiro b) {
+		retorne 1.6
 	}
 
 	funcao inicio () {

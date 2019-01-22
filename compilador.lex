@@ -40,6 +40,8 @@ vazio		{
 				return TIPO;
 			}
 
+retorne		{ return RETORNE; }
+
 ou			{ return OU; }
 
 e			{ return E; }

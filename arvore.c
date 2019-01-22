@@ -134,19 +134,20 @@ t_param * criar_param(int tipo, simbolo *variavel){
 	return novo;
 }
 
-no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco){
+no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco, void *retorno){
 	no_arvore *novo = (no_arvore *) malloc(sizeof(no_arvore));
 	novo->tipo = FUNCAO;
-	novo->dado.funcao = criar_funcao(tipo, nome, params, bloco);
+	novo->dado.funcao = criar_funcao(tipo, nome, params, bloco, retorno);
 	return novo;
 }
 
-t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco){
+t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco, void *retorno){
 	t_funcao *novo = (t_funcao *) malloc(sizeof(t_funcao));
 	novo->tipo = tipo;
 	novo->nome = nome;
 	novo->params = params;
 	novo->bloco = bloco;
+	novo->retorno = retorno;
 	return novo;
 }
 

@@ -52,6 +52,7 @@ typedef struct t_funcao {
 	simbolo *nome;
 	void *params;
 	void *bloco;
+	void *retorno;
 } t_funcao;
 
 typedef struct t_decl_array {
@@ -142,8 +143,8 @@ t_leia * criar_leia(simbolo *variavel);
 no_arvore * criar_no_param(int tipo, simbolo *variavel);
 t_param * criar_param(int tipo, simbolo *variavel);
 
-no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco);
-t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco);
+no_arvore * criar_no_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco, void *retorno);
+t_funcao * criar_funcao(int tipo, simbolo *nome, t_lista *params, void *bloco, void *retorno);
 
 no_arvore * criar_no_decl_array(int tipo, simbolo *nome, void *tamanho, void *valores_iniciais);
 t_decl_array * criar_decl_array(int tipo, simbolo *nome, void *tamanho, void *valores_iniciais);
