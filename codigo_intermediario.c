@@ -8,12 +8,6 @@
 int temp_ctr = 1;
 int label_ctr = 1;
 
-char * gerar_lexema_temp() {
-	char buffer[256];
-	sprintf(buffer, "t%d", temp_ctr++);
-	return strdup(buffer);
-}
-
 simbolo * gerar_simbolo_temp(int tipo) {
 	char buffer[256];
 	sprintf(buffer, "t%d", temp_ctr++);
@@ -495,16 +489,6 @@ void gerar_codigo(tabela_numero *t_numeros, fila_instrucoes *fila, no_arvore *no
 		// 			break;
 		// 	} 
 		// 	printf("%s", ((simbolo *) param->variavel)->lexema);
-		// 	break;
-		// case IF_ELSE:
-		// 	ifelse = no->dado.ifelse;
-		// 	printf("{ ");
-		// 	imprimir_pos_ordem((no_arvore *) ifelse->bloco_if);
-		// 	printf("} { ");
-		// 	imprimir_pos_ordem((no_arvore *) ifelse->bloco_else);
-		// 	printf("} ( ");
-		// 	imprimir_pos_ordem((no_arvore *) ifelse->condicao);
-		// 	printf(") IF_ELSE");
 		// 	break;
 		// case WHILE:
 		// 	twhile = no->dado.twhile;
